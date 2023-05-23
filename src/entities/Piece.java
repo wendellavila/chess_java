@@ -5,13 +5,14 @@ import entities.enums.Color;
 public abstract class Piece {
     private char icon;
     private Color color;
-    private int currentRow;
-    private int currentCol;
+    protected int currentRow, currentCol;
+    protected boolean[][] permittedMoves;
 
-    public Piece(Color color, int initialRow, int initialCol){
+    public Piece(Color color, int initialRow, int initialCol, char icon){
         this.color = color;
-        currentRow = initialRow;
-        currentCol = initialCol;
+        this.currentRow = initialRow;
+        this.currentCol = initialCol;
+        this.icon = icon;
     }
 
     public void updatePosition(int row, int col){
@@ -19,8 +20,10 @@ public abstract class Piece {
         currentCol = col;
     }
 
-    public void setIcon(char icon){
-        this.icon = icon;
+    public abstract void calculatePermittedMoves(Piece[][] positions);
+
+    public boolean isMovePermitted(int row, int col){
+        return permittedMoves[row][col];
     }
 
     public Color getColor(){

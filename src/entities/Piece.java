@@ -5,7 +5,7 @@ import entities.enums.Color;
 public abstract class Piece {
     private char icon;
     private Color color;
-    protected int currentRow, currentCol;
+    protected int currentRow, currentCol, moveCount;
     protected boolean[][] permittedMoves;
 
     public Piece(Color color, int initialRow, int initialCol, char icon){
@@ -13,6 +13,7 @@ public abstract class Piece {
         this.currentRow = initialRow;
         this.currentCol = initialCol;
         this.icon = icon;
+        this.moveCount = 0;
     }
 
     public void updatePosition(int row, int col){
@@ -28,6 +29,10 @@ public abstract class Piece {
 
     public Color getColor(){
         return color;
+    }
+
+    public int getMoveCount(){
+        return moveCount;
     }
 
     @Override

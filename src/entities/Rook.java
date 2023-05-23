@@ -17,7 +17,7 @@ public class Rook extends Piece {
                 permittedMoves[i][currentCol] = true;
             }
             else {
-                if(positions[i][currentCol].getColor() != super.getColor()){
+                if(positions[i][currentCol].getColor() != getColor()){
                     permittedMoves[i][currentCol] = true;
                 }
                 break;
@@ -30,7 +30,7 @@ public class Rook extends Piece {
                 permittedMoves[i][currentCol] = true;
             }
             else {
-                if(positions[i][currentCol].getColor() != super.getColor()){
+                if(positions[i][currentCol].getColor() != getColor()){
                     permittedMoves[i][currentCol] = true;
                 }
                 break;
@@ -43,7 +43,7 @@ public class Rook extends Piece {
                 permittedMoves[currentRow][j] = true;
             }
             else {
-                if(positions[currentRow][j].getColor() == super.getColor()){
+                if(positions[currentRow][j].getColor() == getColor()){
                     permittedMoves[currentRow][j] = true;
                 }
                 break;
@@ -56,7 +56,7 @@ public class Rook extends Piece {
                 permittedMoves[currentRow][j] = true;
             }
             else {
-                if(positions[currentRow][j].getColor() == super.getColor()){
+                if(positions[currentRow][j].getColor() == getColor()){
                     permittedMoves[currentRow][j] = true;
                 }
                 break;

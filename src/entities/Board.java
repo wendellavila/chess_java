@@ -2,6 +2,8 @@ package entities;
 
 import entities.enums.Color;
 
+import java.util.Arrays;
+
 public class Board {
 
     private static final String ANSI_GREEN_BG = "\u001B[48;5;107m";
@@ -54,6 +56,13 @@ public class Board {
 
     @Override
     public String toString(){
+
+        char[] temp = capturedFromBlack.toCharArray();
+        Arrays.sort(temp);
+        capturedFromBlack = new String(temp);
+        temp = capturedFromWhite.toCharArray();
+        Arrays.sort(temp);
+        capturedFromWhite = new String(temp);
 
         StringBuilder output = new StringBuilder();
         for (int i = 7; i >= 0; i--){

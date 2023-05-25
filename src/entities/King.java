@@ -4,11 +4,32 @@ import entities.enums.Color;
 
 public class King extends Piece {
 
-    public King(Color color, int initialRow, int initialCol){
-        super(color, initialRow, initialCol, '♚');
+    public King(Color color, int initialRow, int initialCol, Board board){
+        super(color, initialRow, initialCol, board, '♚');
     }
 
-    public void calculatePermittedMoves(Piece[][] positions){
+    public void calculatePermittedMoves(){
+        //resetting status variables
+        isCheckingKing = false;
         permittedMoves = new boolean[8][8];
+
+        for(int i : new int[]{-1, 0, 1}){
+            for(int j : new int[]{-1, 0, 1}) {
+                if((i+j != 0) && (currentRow + i < 8) && (currentRow + i >=0) && (currentCol + j < 8) && (currentCol + j >=0)){
+                    Piece piece = board.getPieceByPosition(currentRow + i, currentCol + j);
+                    if(piece == null){
+                        permittedMoves[currentRow + i][currentCol + j] = true;
+                    }
+                    else {
+                        if(piece.getColor() != getColor()){
+                            permittedMoves[i][currentCol] = true;
+                            if(piece instanceof King){
+                                isCheckingKing = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

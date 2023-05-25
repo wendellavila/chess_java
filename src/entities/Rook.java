@@ -4,21 +4,27 @@ import entities.enums.Color;
 
 public class Rook extends Piece {
 
-    public Rook(Color color, int initialRow, int initialCol){
-        super(color, initialRow, initialCol, '♜');
+    public Rook(Color color, int initialRow, int initialCol, Board board){
+        super(color, initialRow, initialCol, board, '♜');
     }
 
-    public void calculatePermittedMoves(Piece[][] positions){
+    public void calculatePermittedMoves(){
+        //resetting status variables
+        isCheckingKing = false;
         permittedMoves = new boolean[8][8];
 
         //horizontal right
         for(int i = currentRow; i < 8; i++){
-            if(positions[i][currentCol] == null){
+            Piece piece = board.getPieceByPosition(i, currentCol);
+            if(piece == null){
                 permittedMoves[i][currentCol] = true;
             }
             else {
-                if(positions[i][currentCol].getColor() != getColor()){
+                if(piece.getColor() != getColor()){
                     permittedMoves[i][currentCol] = true;
+                    if(piece instanceof King){
+                        isCheckingKing = true;
+                    }
                 }
                 break;
             }
@@ -26,12 +32,16 @@ public class Rook extends Piece {
 
         //horizontal left
         for(int i = currentRow; i >= 0 ; i--){
-            if(positions[i][currentCol] == null){
+            Piece piece = board.getPieceByPosition(i, currentCol);
+            if(piece == null){
                 permittedMoves[i][currentCol] = true;
             }
             else {
-                if(positions[i][currentCol].getColor() != getColor()){
+                if(piece.getColor() != getColor()){
                     permittedMoves[i][currentCol] = true;
+                    if(piece instanceof King){
+                        isCheckingKing = true;
+                    }
                 }
                 break;
             }
@@ -39,12 +49,16 @@ public class Rook extends Piece {
 
         //vertical up
         for(int j = currentCol; j < 8; j++){
-            if(positions[currentRow][j] == null){
+            Piece piece = board.getPieceByPosition(currentRow, j);
+            if(piece == null){
                 permittedMoves[currentRow][j] = true;
             }
             else {
-                if(positions[currentRow][j].getColor() == getColor()){
+                if(piece.getColor() == getColor()){
                     permittedMoves[currentRow][j] = true;
+                    if(piece instanceof King){
+                        isCheckingKing = true;
+                    }
                 }
                 break;
             }
@@ -52,12 +66,16 @@ public class Rook extends Piece {
 
         //vertical down
         for(int j = currentCol; j >= 0; j--){
-            if(positions[currentRow][j] == null){
+            Piece piece = board.getPieceByPosition(currentRow, j);
+            if(piece == null){
                 permittedMoves[currentRow][j] = true;
             }
             else {
-                if(positions[currentRow][j].getColor() == getColor()){
+                if(piece.getColor() == getColor()){
                     permittedMoves[currentRow][j] = true;
+                    if(piece instanceof King){
+                        isCheckingKing = true;
+                    }
                 }
                 break;
             }

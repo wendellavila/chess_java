@@ -3,41 +3,51 @@ package entities;
 import entities.enums.Color;
 
 public class Board {
-    Piece[][] positions = new Piece[8][8];
 
-    public static final String ANSI_GREEN_BG = "\u001B[48;5;107m";
-    public static final String ANSI_BROWN_BG = "\u001B[48;5;95m";
-    public static final String ANSI_BLACK = "\u001B[38;5;236m";
-    public static final String ANSI_WHITE = "\u001B[38;5;229m";
-    public static final String ANSI_RESET = "\u001B[0m";
+    private static final String ANSI_GREEN_BG = "\u001B[48;5;107m";
+    private static final String ANSI_BROWN_BG = "\u001B[48;5;95m";
+    private static final String ANSI_BLACK = "\u001B[38;5;236m";
+    private static final String ANSI_WHITE = "\u001B[38;5;229m";
+    private static final String ANSI_RESET = "\u001B[0m";
+
+    private int moveCount;
+    private Piece[][] positions = new Piece[8][8];
 
     public Board(){
 
-        positions[0][0] = new Rook(Color.WHITE, 0, 0);
-        positions[0][1] = new Knight(Color.WHITE, 0, 1);
-        positions[0][2] = new Bishop(Color.WHITE, 0, 2);
-        positions[0][3] = new King(Color.WHITE, 0, 3);
-        positions[0][4] = new Queen(Color.WHITE, 0, 4);
-        positions[0][5] = new Bishop(Color.WHITE, 0, 5);
-        positions[0][6] = new Knight(Color.WHITE, 0, 6);
-        positions[0][7] = new Rook(Color.WHITE, 0, 7);
+        positions[0][0] = new Rook(Color.WHITE, 0, 0, this);
+        positions[0][1] = new Knight(Color.WHITE, 0, 1, this);
+        positions[0][2] = new Bishop(Color.WHITE, 0, 2, this);
+        positions[0][3] = new King(Color.WHITE, 0, 3, this);
+        positions[0][4] = new Queen(Color.WHITE, 0, 4, this);
+        positions[0][5] = new Bishop(Color.WHITE, 0, 5, this);
+        positions[0][6] = new Knight(Color.WHITE, 0, 6, this);
+        positions[0][7] = new Rook(Color.WHITE, 0, 7, this);
 
         for(int j=0; j < 8; j++){
-            positions[1][j] = new Pawn(Color.WHITE, 1, j);
+            positions[1][j] = new Pawn(Color.WHITE, 1, j, this);
             for (int i = 2; i < 6; i++){
                 positions[i][j] = null;
             }
-            positions[6][j] = new Pawn(Color.BLACK, 6, j);
+            positions[6][j] = new Pawn(Color.BLACK, 6, j, this);
         }
 
-        positions[7][0] = new Rook(Color.BLACK, 7, 0);
-        positions[7][1] = new Knight(Color.BLACK, 7, 1);
-        positions[7][2] = new Bishop(Color.BLACK, 7, 2);
-        positions[7][3] = new King(Color.BLACK, 7, 3);
-        positions[7][4] = new Queen(Color.BLACK, 7, 4);
-        positions[7][5] = new Bishop(Color.BLACK, 7, 5);
-        positions[7][6] = new Knight(Color.BLACK, 7, 6);
-        positions[7][7] = new Rook(Color.BLACK, 7, 7);
+        positions[7][0] = new Rook(Color.BLACK, 7, 0, this);
+        positions[7][1] = new Knight(Color.BLACK, 7, 1, this);
+        positions[7][2] = new Bishop(Color.BLACK, 7, 2, this);
+        positions[7][3] = new King(Color.BLACK, 7, 3, this);
+        positions[7][4] = new Queen(Color.BLACK, 7, 4, this);
+        positions[7][5] = new Bishop(Color.BLACK, 7, 5, this);
+        positions[7][6] = new Knight(Color.BLACK, 7, 6, this);
+        positions[7][7] = new Rook(Color.BLACK, 7, 7, this);
+    }
+
+    public Piece getPieceByPosition(int i, int j){
+        return positions[i][j];
+    }
+
+    public int getMoveCount(){
+        return moveCount;
     }
 
     @Override

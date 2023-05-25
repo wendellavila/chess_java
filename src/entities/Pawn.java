@@ -4,84 +4,54 @@ import entities.enums.Color;
 
 public class Pawn extends Piece {
 
-    public Pawn(Color color, int initialRow, int initialCol){
-        super(color, initialRow, initialCol, '♟');
+    public Pawn(Color color, int initialRow, int initialCol, Board board){
+        super(color, initialRow, initialCol, board, '♟');
     }
 
-    public void calculatePermittedMoves(Piece[][] positions){
+    public void calculatePermittedMoves(){
+        //resetting status variables
+        isCheckingKing = false;
         permittedMoves = new boolean[8][8];
 
-        //one square move
-        if(getColor() == Color.WHITE){
-            if(((currentRow + 1) < 8) && (positions[currentRow][currentCol + 1] == null)){
-                permittedMoves[currentRow][currentCol + 1] = true;
-            }
-        }
-        else {
-            if(((currentRow - 1) >= 0) && (positions[currentRow][currentCol - 1] == null)){
-                permittedMoves[currentRow][currentCol - 1] = true;
-            }
+        //one square row movement
+        //direction is different for white and black
+        int i = getColor() == Color.WHITE ? 1 : -1;
+        if((currentRow + i < 8) && (currentRow + i >= 0) && (board.getPieceByPosition(currentRow, currentCol + i) == null)){
+            permittedMoves[currentRow][currentCol + i] = true;
         }
 
         //two square move
         if(moveCount == 0){
-            if(getColor() == Color.WHITE){
-                if(positions[currentRow][currentCol + 2] == null){
-                    permittedMoves[currentRow][currentCol + 2] = true;
-                }
-            }
-            else {
-                if(positions[currentRow][currentCol - 2] == null){
-                    permittedMoves[currentRow][currentCol - 2] = true;
-                }
+            //direction is different for white and black
+            i = getColor() == Color.WHITE ? 2 : -2;
+            if(board.getPieceByPosition(currentRow, currentCol + i) == null){
+                permittedMoves[currentRow][currentCol + i] = true;
             }
         }
 
         //regular capture
-        if(getColor() == Color.WHITE){
-            if((currentRow + 1) < 8){
-                if(((currentCol + 1) < 8) && (positions[currentRow + 1][currentCol + 1] != null) && (positions[currentRow + 1][currentCol + 1].getColor() != getColor())){
-                    permittedMoves[currentRow + 1][currentCol + 1] = true;
-                }
-                if(((currentCol - 1) >= 0) && (positions[currentRow + 1][currentCol - 1] != null) && (positions[currentRow + 1][currentCol - 1].getColor() != getColor())){
-                    permittedMoves[currentRow + 1][currentCol - 1] = true;
-                }
-            }
-        }
-        else {
-            if((currentRow - 1) >= 0){
-                if(((currentCol + 1) < 8) && (positions[currentRow - 1][currentCol + 1] != null) && (positions[currentRow - 1][currentCol + 1].getColor() != getColor())) {
-                    permittedMoves[currentRow - 1][currentCol + 1] = true;
-                }
-                if(((currentCol - 1) >= 0) && (positions[currentRow - 1][currentCol - 1] != null) && (positions[currentRow - 1][currentCol - 1].getColor() != getColor())){
-                    permittedMoves[currentRow - 1][currentCol - 1] = true;
+        if((currentRow + i < 8) && (currentRow + i >= 0)){
+            for(int j : new int[]{1, -1}){
+                if((currentCol + j < 8) && (currentCol + j >= 0)){
+                    Piece piece = board.getPieceByPosition(currentRow + i, currentCol + j);
+                    if(piece != null && piece.getColor() != getColor()){
+                        permittedMoves[currentRow + i][currentCol + j] = true;
+                        if(piece instanceof King){
+                            isCheckingKing = true;
+                        }
+                    }
                 }
             }
         }
 
         //en passant
-        if(currentRow == 4 || currentRow == 5){
-            if(currentCol + 1 < 8 && positions[currentRow][currentCol + 1] != null &&
-                    positions[currentRow][currentCol + 1] instanceof Pawn &&
-                    positions[currentRow][currentCol + 1].getColor() != getColor() &&
-                    positions[currentRow][currentCol + 1].getMoveCount() == 1){
-
-                if(getColor() == Color.WHITE){
-                    permittedMoves[currentRow + 1][currentCol + 1] = true;
-                }
-                else {
-                    permittedMoves[currentRow - 1][currentCol + 1] = true;
-                }
-            }
-            if(currentCol - 1 >= 0 && positions[currentRow][currentCol - 1] != null &&
-                    positions[currentRow][currentCol - 1] instanceof Pawn &&
-                    positions[currentRow][currentCol - 1].getColor() != getColor() &&
-                    positions[currentRow][currentCol - 1].getMoveCount() == 1){
-                if(getColor() == Color.WHITE){
-                    permittedMoves[currentRow + 1][currentCol - 1] = true;
-                }
-                else {
-                    permittedMoves[currentRow - 1][currentCol - 1] = true;
+        if((getColor() == Color.WHITE && currentRow == 5) || (getColor() == Color.BLACK && currentRow == 4)){
+            for(int j : new int[]{1, -1}){
+                if((currentCol + j < 8) && (currentCol + j >= 0)){
+                    Piece piece = board.getPieceByPosition(currentRow, currentCol + j);
+                    if(piece instanceof Pawn && piece.getColor() != getColor() && piece.getMoveCount() == 1){
+                        permittedMoves[currentRow + i][currentCol + j] = true;
+                    }
                 }
             }
         }

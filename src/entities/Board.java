@@ -12,6 +12,8 @@ public class Board {
 
     private int moveCount;
     private Piece[][] positions = new Piece[8][8];
+    private String capturedFromWhite = "";
+    private String capturedFromBlack = "";
 
     public Board(){
 
@@ -51,7 +53,7 @@ public class Board {
     }
 
     @Override
-    public String toString() {
+    public String toString(){
 
         StringBuilder output = new StringBuilder();
         for (int i = 7; i >= 0; i--){
@@ -70,7 +72,13 @@ public class Board {
             }
             output.append("\n");
         }
-        output.append("    a  b  c  d  e  f  g  h");
+        output.append("    a  b  c  d  e  f  g  h\n\n");
+        output.append("   ").append(ANSI_GREEN_BG).append(ANSI_WHITE).append("[").append(ANSI_BLACK)
+                .append(capturedFromBlack).append(ANSI_WHITE).append("]").append(ANSI_RESET).append("\n");
+
+        output.append("   ").append(ANSI_BROWN_BG).append(ANSI_BLACK).append("[").append(ANSI_WHITE)
+                .append(capturedFromWhite).append(ANSI_BLACK).append("]").append(ANSI_RESET).append("\n");
+
         return output.toString();
     }
 }

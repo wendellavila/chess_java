@@ -1,6 +1,7 @@
 package entities;
 
 import entities.enums.Color;
+import entities.exceptions.CheckmateException;
 import entities.exceptions.InvalidMoveException;
 import entities.exceptions.InvalidNotationException;
 
@@ -68,7 +69,7 @@ public class Board {
         return moveCount;
     }
 
-    public void movePieces(String input) throws InvalidNotationException, InvalidMoveException {
+    public void movePieces(String input) throws InvalidNotationException, InvalidMoveException, CheckmateException {
 
         int originRow, originCol, destinationRow, destinationCol;
         Matcher matcher = inputPattern.matcher(input);
@@ -101,6 +102,10 @@ public class Board {
                 positions[destinationRow][destinationCol] = movingPiece;
                 positions[originRow][originCol] = null;
                 movingPiece.updatePosition(destinationRow, destinationCol, moveCount);
+
+                if(destination instanceof King){
+                    throw new CheckmateException();
+                }
 
                 for(Piece[] row : positions){
                     for(Piece piece : row){

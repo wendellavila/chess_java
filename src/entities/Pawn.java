@@ -16,16 +16,16 @@ public class Pawn extends Piece {
         //one square row movement
         //direction is different for white and black
         int i = getColor() == Color.WHITE ? 1 : -1;
-        if((currentRow + i < 8) && (currentRow + i >= 0) && (board.getPieceByPosition(currentRow, currentCol + i) == null)){
-            permittedMoves[currentRow][currentCol + i] = true;
+        if((currentRow + i < 8) && (currentRow + i >= 0) && (board.getPieceByPosition(currentRow + i, currentCol) == null)){
+            permittedMoves[currentRow + i][currentCol] = true;
         }
 
         //two square move
         if(moveCount == 0){
             //direction is different for white and black
             i = getColor() == Color.WHITE ? 2 : -2;
-            if(board.getPieceByPosition(currentRow, currentCol + i) == null){
-                permittedMoves[currentRow][currentCol + i] = true;
+            if(board.getPieceByPosition(currentRow + i, currentCol) == null){
+                permittedMoves[currentRow + i][currentCol] = true;
             }
         }
 

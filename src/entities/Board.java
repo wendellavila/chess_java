@@ -1,21 +1,29 @@
 package entities;
 
 import entities.enums.Color;
+import entities.exceptions.InvalidMoveException;
+import entities.exceptions.InvalidNotationException;
 
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Board {
 
+    //ANSI codes for printing colored text on UNIX-like terminals
     private static final String ANSI_GREEN_BG = "\u001B[48;5;107m";
     private static final String ANSI_BROWN_BG = "\u001B[48;5;95m";
     private static final String ANSI_BLACK = "\u001B[38;5;236m";
     private static final String ANSI_WHITE = "\u001B[38;5;229m";
     private static final String ANSI_RESET = "\u001B[0m";
 
-    private int moveCount;
+    private int moveCount = 0;
     private Piece[][] positions = new Piece[8][8];
     private String capturedFromWhite = "";
     private String capturedFromBlack = "";
+
+    //regex used by movePieces
+    private static final Pattern inputPattern = Pattern.compile("([a-zA-Z])(\\d)\\s?-?([a-zA-Z])(\\d)");
 
     public Board(){
 
@@ -44,6 +52,12 @@ public class Board {
         positions[7][5] = new Bishop(Color.BLACK, 7, 5, this);
         positions[7][6] = new Knight(Color.BLACK, 7, 6, this);
         positions[7][7] = new Rook(Color.BLACK, 7, 7, this);
+
+        for(int i : new int[]{0, 1, 6, 7}){
+            for(int j = 0; j < 8; j++){
+                positions[i][j].calculatePermittedMoves();
+            }
+        }
     }
 
     public Piece getPieceByPosition(int i, int j){
@@ -52,6 +66,57 @@ public class Board {
 
     public int getMoveCount(){
         return moveCount;
+    }
+
+    public void movePieces(String input) throws InvalidNotationException, InvalidMoveException {
+
+        int originRow, originCol, destinationRow, destinationCol;
+        Matcher matcher = inputPattern.matcher(input);
+
+        if(matcher.matches()) {
+            originRow = Integer.parseInt(matcher.group(2)) - 1;
+            destinationRow = Integer.parseInt(matcher.group(4)) - 1;
+            //converting letters a-h to integers 0-7
+            originCol = (int) matcher.group(1).toLowerCase().charAt(0) - (int)'a';
+            destinationCol = (int) matcher.group(3).toLowerCase().charAt(0) - (int)'a';
+
+            if(originRow < 0 || originRow > 7 || destinationRow < 0 || destinationRow > 7 ||
+                    originCol < 0 || originCol > 7 || destinationCol < 0 || destinationCol > 7){
+                throw new InvalidMoveException(input);
+            }
+
+            Piece movingPiece = positions[originRow][originCol];
+            if(movingPiece != null && movingPiece.isMovePermitted(destinationRow, destinationCol)){
+                moveCount++;
+                Piece destination = positions[destinationRow][destinationCol];
+                //capture
+                if (destination != null) {
+                    if(destination.getColor() == Color.WHITE){
+                        capturedFromWhite += destination.toString();
+                    }
+                    else {
+                        capturedFromBlack += destination.toString();
+                    }
+                }
+                positions[destinationRow][destinationCol] = movingPiece;
+                positions[originRow][originCol] = null;
+                movingPiece.updatePosition(destinationRow, destinationCol, moveCount);
+
+                for(Piece[] row : positions){
+                    for(Piece piece : row){
+                        if(piece != null){
+                            piece.calculatePermittedMoves();
+                        }
+                    }
+                }
+            }
+            else {
+                throw new InvalidMoveException(input);
+            }
+        }
+        else {
+            throw new InvalidNotationException(input);
+        }
     }
 
     @Override
@@ -64,7 +129,7 @@ public class Board {
         Arrays.sort(temp);
         capturedFromWhite = new String(temp);
 
-        StringBuilder output = new StringBuilder();
+        StringBuilder output = new StringBuilder("    a  b  c  d  e  f  g  h\n");
         for (int i = 7; i >= 0; i--){
             output.append(" ").append(i+1).append(" ");
             for(int j=0; j < 8; j++){
@@ -79,13 +144,13 @@ public class Board {
                 }
 
             }
-            output.append("\n");
+            output.append(" ").append(i+1).append("\n");
         }
         output.append("    a  b  c  d  e  f  g  h\n\n");
-        output.append("   ").append(ANSI_GREEN_BG).append(ANSI_WHITE).append("[").append(ANSI_BLACK)
-                .append(capturedFromBlack).append(ANSI_WHITE).append("]").append(ANSI_RESET).append("\n");
+        output.append(" ").append(ANSI_GREEN_BG).append(ANSI_WHITE).append("[").append(ANSI_BLACK)
+                .append(capturedFromBlack).append(ANSI_WHITE).append("]").append(ANSI_RESET);
 
-        output.append("   ").append(ANSI_BROWN_BG).append(ANSI_BLACK).append("[").append(ANSI_WHITE)
+        output.append(" ").append(ANSI_BROWN_BG).append(ANSI_BLACK).append("[").append(ANSI_WHITE)
                 .append(capturedFromWhite).append(ANSI_BLACK).append("]").append(ANSI_RESET).append("\n");
 
         return output.toString();

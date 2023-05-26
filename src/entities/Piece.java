@@ -20,9 +20,11 @@ public abstract class Piece {
         this.board = board;
     }
 
-    public void updatePosition(int row, int col){
+    public void updatePosition(int row, int col, int boardMoveCount){
         currentRow = row;
         currentCol = col;
+        moveCount++;
+        lastMoved = boardMoveCount;
     }
 
     public abstract void calculatePermittedMoves();

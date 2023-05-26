@@ -13,49 +13,15 @@ public class Queen extends Piece {
         isCheckingKing = false;
         permittedMoves = new boolean[8][8];
 
-        //horizontal right
-        for(int i = currentRow; i < 8; i++){
-            Piece piece = board.getPieceByPosition(i, currentCol);
-            if(piece == null){
-                permittedMoves[i][currentCol] = true;
-            }
-            else {
-                if(piece.getColor() != getColor()){
-                    permittedMoves[i][currentCol] = true;
-                    if(piece instanceof King){
-                        isCheckingKing = true;
-                    }
-                }
-                break;
-            }
-        }
-
-        //horizontal left
-        for(int i = currentRow; i >= 0 ; i--){
-            Piece piece = board.getPieceByPosition(i, currentCol);
-            if(piece == null){
-                permittedMoves[i][currentCol] = true;
-            }
-            else {
-                if(piece.getColor() != getColor()){
-                    permittedMoves[i][currentCol] = true;
-                    if(piece instanceof King){
-                        isCheckingKing = true;
-                    }
-                }
-                break;
-            }
-        }
-
         //vertical up
-        for(int j = currentCol; j < 8; j++){
-            Piece piece = board.getPieceByPosition(currentRow, j);
+        for(int i = currentRow + 1; i < 8; i++){
+            Piece piece = board.getPieceByPosition(i, currentCol);
             if(piece == null){
-                permittedMoves[currentRow][j] = true;
+                permittedMoves[i][currentCol] = true;
             }
             else {
                 if(piece.getColor() != getColor()){
-                    permittedMoves[currentRow][j] = true;
+                    permittedMoves[i][currentCol] = true;
                     if(piece instanceof King){
                         isCheckingKing = true;
                     }
@@ -65,13 +31,47 @@ public class Queen extends Piece {
         }
 
         //vertical down
-        for(int j = currentCol; j >= 0; j--){
+        for(int i = currentRow - 1; i >= 0 ; i--){
+            Piece piece = board.getPieceByPosition(i, currentCol);
+            if(piece == null){
+                permittedMoves[i][currentCol] = true;
+            }
+            else {
+                if(piece.getColor() != getColor()){
+                    permittedMoves[i][currentCol] = true;
+                    if(piece instanceof King){
+                        isCheckingKing = true;
+                    }
+                }
+                break;
+            }
+        }
+
+        //horizontal right
+        for(int j = currentCol + 1; j < 8; j++){
             Piece piece = board.getPieceByPosition(currentRow, j);
             if(piece == null){
                 permittedMoves[currentRow][j] = true;
             }
             else {
-                if(piece.getColor() != getColor()){
+                if(piece.getColor() == getColor()){
+                    permittedMoves[currentRow][j] = true;
+                    if(piece instanceof King){
+                        isCheckingKing = true;
+                    }
+                }
+                break;
+            }
+        }
+
+        //horizontal left
+        for(int j = currentCol - 1; j >= 0; j--){
+            Piece piece = board.getPieceByPosition(currentRow, j);
+            if(piece == null){
+                permittedMoves[currentRow][j] = true;
+            }
+            else {
+                if(piece.getColor() == getColor()){
                     permittedMoves[currentRow][j] = true;
                     if(piece instanceof King){
                         isCheckingKing = true;

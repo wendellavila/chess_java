@@ -1,6 +1,7 @@
 package entities;
 
 import entities.enums.Color;
+import entities.enums.InvalidMove;
 import entities.exceptions.CheckmateException;
 import entities.exceptions.InvalidMoveException;
 import entities.exceptions.InvalidNotationException;
@@ -19,7 +20,7 @@ public class Board {
     private static final String ANSI_RESET = "\u001B[0m";
 
     private int moveCount = 0;
-    private Piece[][] positions = new Piece[8][8];
+    private final Piece[][] positions = new Piece[8][8];
     private String capturedFromWhite = "";
     private String capturedFromBlack = "";
 
@@ -83,7 +84,7 @@ public class Board {
 
             if(originRow < 0 || originRow > 7 || destinationRow < 0 || destinationRow > 7 ||
                     originCol < 0 || originCol > 7 || destinationCol < 0 || destinationCol > 7){
-                throw new InvalidMoveException(input);
+                throw new InvalidNotationException(input);
             }
 
             Piece movingPiece = positions[originRow][originCol];
@@ -104,7 +105,7 @@ public class Board {
                 movingPiece.updatePosition(destinationRow, destinationCol, moveCount);
 
                 if(destination instanceof King){
-                    throw new CheckmateException();
+                    throw new CheckmateException(movingPiece.getColor().toString());
                 }
 
                 for(Piece[] row : positions){
@@ -116,7 +117,13 @@ public class Board {
                 }
             }
             else {
-                throw new InvalidMoveException(input);
+                if(movingPiece == null){
+                    throw new InvalidMoveException(input, "Square " + matcher.group(1) + matcher.group(2) + " is empty.");
+                }
+                else {
+                    throw new InvalidMoveException(input, "Piece cannot move to " + matcher.group(3) + matcher.group(4) + ".");
+                }
+
             }
         }
         else {

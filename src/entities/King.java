@@ -22,7 +22,7 @@ public class King extends Piece {
                     }
                     else {
                         if(piece.getColor() != getColor()){
-                            permittedMoves[i][currentCol] = true;
+                            permittedMoves[currentRow + i][currentCol + j] = true;
                             if(piece instanceof King){
                                 isCheckingKing = true;
                             }

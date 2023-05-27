@@ -13,148 +13,31 @@ public class Queen extends Piece {
         isCheckingKing = false;
         permittedMoves = new boolean[8][8];
 
-        //vertical up
-        for(int i = currentRow + 1; i < 8; i++){
-            Piece piece = board.getPieceByPosition(i, currentCol);
-            if(piece == null){
-                permittedMoves[i][currentCol] = true;
-            }
-            else {
-                if(piece.getColor() != getColor()){
-                    permittedMoves[i][currentCol] = true;
-                    if(piece instanceof King){
-                        isCheckingKing = true;
+        int[][] directions = {{1,1}, {1,-1}, {-1,1}, {-1, -1}, {1,0}, {-1,0}, {0,1}, {0,-1}};
+        for(int[] direction : directions){
+            for(int i = 1; i < 8; i++){
+                if((currentRow + (i * direction[0]) < 8) && (currentRow + (i * direction[0]) >= 0) && (currentCol + (i * direction[1]) < 8) && (currentCol + (i * direction[1]) >= 0)){
+                    Piece piece = board.getPieceByPosition(currentRow + (i * direction[0]), currentCol + (i * direction[1]));
+                    if(piece == null){
+                        System.out.println('a');
+                        permittedMoves[currentRow + (i * direction[0])][currentCol + (i * direction[1])] = true;
                     }
-                }
-                break;
-            }
-        }
-
-        //vertical down
-        for(int i = currentRow - 1; i >= 0 ; i--){
-            Piece piece = board.getPieceByPosition(i, currentCol);
-            if(piece == null){
-                permittedMoves[i][currentCol] = true;
-            }
-            else {
-                if(piece.getColor() != getColor()){
-                    permittedMoves[i][currentCol] = true;
-                    if(piece instanceof King){
-                        isCheckingKing = true;
+                    else {
+                        if(piece.getColor() != getColor()){
+                            System.out.println('b');
+                            permittedMoves[currentRow + (i * direction[0])][currentCol + (i * direction[1])] = true;
+                            if(piece instanceof King){
+                                isCheckingKing = true;
+                            }
+                        }
+                        break;
                     }
-                }
-                break;
-            }
-        }
-
-        //horizontal right
-        for(int j = currentCol + 1; j < 8; j++){
-            Piece piece = board.getPieceByPosition(currentRow, j);
-            if(piece == null){
-                permittedMoves[currentRow][j] = true;
-            }
-            else {
-                if(piece.getColor() == getColor()){
-                    permittedMoves[currentRow][j] = true;
-                    if(piece instanceof King){
-                        isCheckingKing = true;
-                    }
-                }
-                break;
-            }
-        }
-
-        //horizontal left
-        for(int j = currentCol - 1; j >= 0; j--){
-            Piece piece = board.getPieceByPosition(currentRow, j);
-            if(piece == null){
-                permittedMoves[currentRow][j] = true;
-            }
-            else {
-                if(piece.getColor() == getColor()){
-                    permittedMoves[currentRow][j] = true;
-                    if(piece instanceof King){
-                        isCheckingKing = true;
-                    }
-                }
-                break;
-            }
-        }
-
-        //diagonal up right
-        for(int i = 0; i < 8; i++){
-            if((currentRow + i < 8) && (currentRow + i >= 0) && (currentCol + i < 8) && (currentCol + i >= 0)){
-                Piece piece = board.getPieceByPosition(currentRow + i, currentCol + i);
-                if(piece == null){
-                    permittedMoves[currentRow + i][currentCol + i] = true;
                 }
                 else {
-                    if(piece.getColor() != getColor()){
-                        permittedMoves[currentRow + i][currentCol + i] = true;
-                        if(piece instanceof King){
-                            isCheckingKing = true;
-                        }
-                    }
                     break;
                 }
             }
         }
 
-        //diagonal up left
-        for(int i = 0; i < 8; i++){
-            if((currentRow + i < 8) && (currentRow + i >= 0) && (currentCol - i < 8) && (currentCol - i >= 0)){
-                Piece piece = board.getPieceByPosition(currentRow + i, currentCol - i);
-                if(piece == null){
-                    permittedMoves[currentRow + i][currentCol - i] = true;
-                }
-                else {
-                    if(piece.getColor() != getColor()){
-                        permittedMoves[currentRow + i][currentCol - i] = true;
-                        if (piece instanceof King){
-                            isCheckingKing = true;
-                        }
-                    }
-                    break;
-                }
-            }
-        }
-
-        //diagonal down right
-        for(int i = 0; i < 8; i++){
-            if((currentRow - i < 8) && (currentRow - i >= 0) && (currentCol + i < 8) && (currentCol + i >= 0)){
-                Piece piece = board.getPieceByPosition(currentRow - i, currentCol + i);
-                if(piece == null){
-                    permittedMoves[currentRow - i][currentCol + i] = true;
-                }
-                else {
-                    if(piece.getColor() != getColor()){
-                        permittedMoves[currentRow - i][currentCol + i] = true;
-                        if(piece instanceof King){
-                            isCheckingKing = true;
-                        }
-                    }
-                    break;
-                }
-            }
-        }
-
-        //diagonal down left
-        for(int i = 0; i < 8; i++){
-            if((currentRow - i < 8) && (currentRow - i >= 0) && (currentCol - i < 8) && (currentCol - i >= 0)){
-                Piece piece = board.getPieceByPosition(currentRow - i, currentCol - i);
-                if(piece == null){
-                    permittedMoves[currentRow - i][currentCol - i] = true;
-                }
-                else {
-                    if(piece.getColor() != getColor()){
-                        permittedMoves[currentRow - i][currentCol - i] = true;
-                        if(piece instanceof King){
-                            isCheckingKing = true;
-                        }
-                    }
-                    break;
-                }
-            }
-        }
     }
 }

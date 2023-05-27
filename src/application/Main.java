@@ -11,27 +11,26 @@ public class Main {
 
     public static void main(String[] args) {
         Board board = new Board();
-        System.out.println(board.toString());
-
         Scanner sc = new Scanner(System.in);
         int turnCount = 1;
 
+        System.out.println(board);
+        String currentColor = board.getMoveCount() % 2 == 0 ? "Whites" : "Blacks";
+        System.out.println("Turn " + turnCount + " - " + currentColor + " play\nInput: ");
+
         while(true) {
-            String currentColor = board.getMoveCount() % 2 == 0 ? "Whites" : "Blacks";
-            System.out.print("Turn " + turnCount + " - " + currentColor + " play\nInput: ");
             try {
                 board.movePieces(sc.nextLine());
                 turnCount = board.getMoveCount() % 2 == 0 ? turnCount + 1 : turnCount;
-                System.out.println("\n\n" + board.toString());
+                System.out.println("\n\n" + board);
+                currentColor = board.getMoveCount() % 2 == 0 ? "Whites" : "Blacks";
+                System.out.println("Turn " + turnCount + " - " + currentColor + " play\nInput: ");
             }
-            catch (InvalidNotationException e){
-                System.out.println(e.getMessage());
-            }
-            catch (InvalidMoveException e){
+            catch (InvalidNotationException | InvalidMoveException e){
                 System.out.println(e.getMessage());
             }
             catch (CheckmateException e){
-                System.out.println("Checkmate! - " + currentColor + " wins!");
+                System.out.println(e.getMessage());
                 break;
             }
         }

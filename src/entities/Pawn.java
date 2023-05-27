@@ -5,7 +5,7 @@ import entities.enums.PieceColor;
 public class Pawn extends Piece {
 
     public Pawn(PieceColor pieceColor, int initialRow, int initialCol, Board board){
-        super(pieceColor, initialRow, initialCol, board, '♟');
+        super(pieceColor, initialRow, initialCol, board, '♟', "");
     }
 
     public void calculatePermittedMoves(){

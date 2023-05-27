@@ -1,27 +1,23 @@
 package entities;
 
 import entities.enums.PieceColor;
+import entities.utils.ANSIColors;
 import entities.exceptions.CheckmateException;
 import entities.exceptions.InvalidMoveException;
 import entities.exceptions.InvalidNotationException;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Board {
 
-    //ANSI codes for printing colored text on UNIX-like terminals
-    private static final String ANSI_GREEN_BG = "\u001B[48;5;107m";
-    private static final String ANSI_BROWN_BG = "\u001B[48;5;95m";
-    private static final String ANSI_BLACK = "\u001B[38;5;236m";
-    private static final String ANSI_WHITE = "\u001B[38;5;229m";
-    private static final String ANSI_RESET = "\u001B[0m";
-
     private int moveCount = 0;
     private final Piece[][] positions = new Piece[8][8];
     private String capturedFromWhite = "";
     private String capturedFromBlack = "";
+    private LinkedList<NotationEntry> latestPlays;
 
     //regex used by movePieces
     private static final Pattern inputPattern = Pattern.compile("([a-zA-Z])(\\d)\\s?-?([a-zA-Z])(\\d)");
@@ -59,6 +55,7 @@ public class Board {
                 positions[i][j].calculatePermittedMoves();
             }
         }
+        latestPlays = new LinkedList<>();
     }
 
     public Piece getPieceByPosition(int i, int j){
@@ -90,6 +87,7 @@ public class Board {
             if(movingPiece != null && movingPiece.isMovePermitted(destinationRow, destinationCol)){
                 moveCount++;
                 Piece destination = positions[destinationRow][destinationCol];
+                String notation;
                 //capture
                 if (destination != null) {
                     if(destination.getColor() == PieceColor.WHITE){
@@ -98,12 +96,24 @@ public class Board {
                     else {
                         capturedFromBlack += destination.toString();
                     }
+                    notation = movingPiece.getNotationSymbol() + matcher.group(1) + matcher.group(2) + "x" +
+                            matcher.group(3) + matcher.group(4);
                 }
+                else {
+                    notation = movingPiece.getNotationSymbol() + matcher.group(1) + matcher.group(2) +
+                            matcher.group(3) + matcher.group(4);
+                }
+
                 positions[destinationRow][destinationCol] = movingPiece;
                 positions[originRow][originCol] = null;
                 movingPiece.updatePosition(destinationRow, destinationCol, moveCount);
 
                 if(destination instanceof King){
+                    notation += "#";
+                    latestPlays.addFirst(new NotationEntry(notation, movingPiece.getColor(), movingPiece.toString()));
+                    if(latestPlays.size() > 8){
+                        latestPlays.removeLast();
+                    }
                     throw new CheckmateException(movingPiece.getColor().toString());
                 }
 
@@ -114,13 +124,21 @@ public class Board {
                         }
                     }
                 }
+                if(movingPiece.isCheckingKing){
+                    notation += "+";
+                }
+                latestPlays.addFirst(new NotationEntry(notation, movingPiece.getColor(), movingPiece.toString()));
+                if(latestPlays.size() > 8){
+                    latestPlays.removeLast();
+                }
             }
             else {
                 if(movingPiece == null){
                     throw new InvalidMoveException(input, "Square " + matcher.group(1) + matcher.group(2) + " is empty.");
                 }
                 else {
-                    throw new InvalidMoveException(input, "Piece cannot move to " + matcher.group(3) + matcher.group(4) + ".");
+                    throw new InvalidMoveException(input, "Piece in " + matcher.group(1) + matcher.group(2) + " cannot move to "
+                            + matcher.group(3) + matcher.group(4) + ".");
                 }
 
             }
@@ -140,29 +158,33 @@ public class Board {
         Arrays.sort(temp);
         capturedFromWhite = new String(temp);
 
-        StringBuilder output = new StringBuilder("    a  b  c  d  e  f  g  h\n");
+        StringBuilder output = new StringBuilder("    a  b  c  d  e  f  g  h       Latest plays:\n");
         for (int i = 7; i >= 0; i--){
             output.append(" ").append(i+1).append(" ");
             for(int j=0; j < 8; j++){
                 //if row number + col number is even, square is light
-                String tileColor = (i+j+2) % 2 == 0 ? ANSI_GREEN_BG : ANSI_BROWN_BG;
+                String tileColor = (i+j+2) % 2 == 0 ? ANSIColors.ANSI_GREEN_BG : ANSIColors.ANSI_BROWN_BG;
                 if(positions[i][j] != null){
-                    String pieceColor = positions[i][j].getColor() == PieceColor.WHITE ? ANSI_WHITE : ANSI_BLACK;
-                    output.append(tileColor).append(" ").append(pieceColor).append(positions[i][j].toString()).append(" ").append(ANSI_RESET);
+                    String pieceColor = positions[i][j].getColor() == PieceColor.WHITE ? ANSIColors.ANSI_WHITE : ANSIColors.ANSI_BLACK;
+                    output.append(tileColor).append(" ").append(pieceColor).append(positions[i][j].toString()).append(" ").append(ANSIColors.ANSI_RESET);
                 }
                 else {
-                    output.append(tileColor).append("   ").append(ANSI_RESET);
+                    output.append(tileColor).append("   ").append(ANSIColors.ANSI_RESET);
                 }
 
             }
-            output.append(" ").append(i+1).append("\n");
+            output.append(" ").append(i+1);
+            if(latestPlays.size() > (7 - i)){
+                output.append("    ").append(latestPlays.get(7 - i));
+            }
+            output.append("\n");
         }
-        output.append("    a  b  c  d  e  f  g  h\n\n");
-        output.append(" ").append(ANSI_GREEN_BG).append(ANSI_WHITE).append("[").append(ANSI_BLACK)
-                .append(capturedFromBlack).append(ANSI_WHITE).append("]").append(ANSI_RESET);
+        output.append("    a  b  c  d  e  f  g  h   \n\n");
+        output.append(" ").append(ANSIColors.ANSI_GREEN_BG).append(ANSIColors.ANSI_WHITE).append("[").append(ANSIColors.ANSI_BLACK)
+                .append(capturedFromBlack).append(ANSIColors.ANSI_WHITE).append("]").append(ANSIColors.ANSI_RESET);
 
-        output.append(" ").append(ANSI_BROWN_BG).append(ANSI_BLACK).append("[").append(ANSI_WHITE)
-                .append(capturedFromWhite).append(ANSI_BLACK).append("]").append(ANSI_RESET).append("\n");
+        output.append(" ").append(ANSIColors.ANSI_BROWN_BG).append(ANSIColors.ANSI_BLACK).append("[").append(ANSIColors.ANSI_WHITE)
+                .append(capturedFromWhite).append(ANSIColors.ANSI_BLACK).append("]").append(ANSIColors.ANSI_RESET).append("\n");
 
         return output.toString();
     }

@@ -5,7 +5,7 @@ import entities.enums.PieceColor;
 public class Bishop extends Piece {
 
     public Bishop(PieceColor pieceColor, int initialRow, int initialCol, Board board){
-        super(pieceColor, initialRow, initialCol, board, '♝');
+        super(pieceColor, initialRow, initialCol, board, '♝', "B");
     }
 
     public void calculatePermittedMoves(){

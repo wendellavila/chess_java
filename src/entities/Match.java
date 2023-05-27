@@ -1,6 +1,6 @@
 package entities;
 
-import entities.enums.PieceColor;
+//import entities.enums.PieceColor;
 import entities.exceptions.CheckmateException;
 import entities.exceptions.InvalidMoveException;
 import entities.exceptions.InvalidNotationException;
@@ -13,32 +13,32 @@ public class Match {
 
         int turnCount = 1;
         Board board = new Board();
-        Scanner sc = new Scanner(System.in);
-
         System.out.println(board);
-        String currentColor = board.getMoveCount() % 2 == 0 ? "Whites" : "Blacks";
-        System.out.println("Turn " + turnCount + " - " + currentColor + " play\nInput: ");
-
-        while(true) {
-            try {
-                board.movePieces(sc.nextLine());
-                turnCount = board.getMoveCount() % 2 == 0 ? turnCount + 1 : turnCount;
-                System.out.println("\n\n" + board);
-                currentColor = board.getMoveCount() % 2 == 0 ? "Whites" : "Blacks";
-                System.out.println("Turn " + turnCount + " - " + currentColor + " play\nInput: ");
-            }
-            catch (InvalidNotationException | InvalidMoveException e){
-                System.out.println(e.getMessage());
-            }
-            catch (CheckmateException e){
-                System.out.println(e.getMessage());
-                break;
+        try(Scanner sc = new Scanner(System.in)){
+            while(true) {
+                try {
+                    String currentColor = board.getMoveCount() % 2 == 0 ? "Whites" : "Blacks";
+                    System.out.println("Turn " + turnCount + " - " + currentColor + " play\nInput: ");
+                    board.movePieces(sc.nextLine());
+                    turnCount = board.getMoveCount() % 2 == 0 ? turnCount + 1 : turnCount;
+                    System.out.println("\n\n" + board);
+                }
+                catch (InvalidNotationException | InvalidMoveException e){
+                    System.out.println(e.getMessage());
+                }
+                catch (CheckmateException e){
+                    System.out.println(e.getMessage());
+                    break;
+                }
             }
         }
-        sc.close();
     }
 
-    public static void playPVEMatch(PieceColor pieceColor){
-        //
-    }
+//    public static void replayMatch(List<String> inputHistory){
+//
+//    }
+
+//    public static void playPVEMatch(PieceColor pieceColor){
+//        //
+//    }
 }

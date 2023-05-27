@@ -3,21 +3,25 @@ package entities;
 import entities.enums.PieceColor;
 
 public abstract class Piece {
-    private char icon;
-    private PieceColor pieceColor;
+
+    private final PieceColor pieceColor;
     protected int currentRow, currentCol;
+    protected Board board;
+    private final char icon;
+    private final String notationSymbol;
     protected boolean[][] permittedMoves;
     protected int moveCount = 0;
     protected int lastMoved = 0;
-    protected Board board;
     protected boolean isCheckingKing;
 
-    public Piece(PieceColor pieceColor, int initialRow, int initialCol, Board board, char icon){
+
+    public Piece(PieceColor pieceColor, int initialRow, int initialCol, Board board, char icon, String notationSymbol){
         this.pieceColor = pieceColor;
         this.currentRow = initialRow;
         this.currentCol = initialCol;
         this.icon = icon;
         this.board = board;
+        this.notationSymbol = notationSymbol;
     }
 
     public void updatePosition(int row, int col, int boardMoveCount){
@@ -39,6 +43,10 @@ public abstract class Piece {
 
     public int getMoveCount(){
         return moveCount;
+    }
+
+    public String getNotationSymbol(){
+        return notationSymbol;
     }
 
     @Override

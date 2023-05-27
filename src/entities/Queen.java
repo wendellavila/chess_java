@@ -5,7 +5,7 @@ import entities.enums.PieceColor;
 public class Queen extends Piece {
 
     public Queen(PieceColor pieceColor, int initialRow, int initialCol, Board board){
-        super(pieceColor, initialRow, initialCol, board, '♛');
+        super(pieceColor, initialRow, initialCol, board, '♛', "Q");
     }
 
     public void calculatePermittedMoves(){

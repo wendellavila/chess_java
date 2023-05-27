@@ -1,10 +1,10 @@
 package entities;
 
-import entities.enums.Color;
+import entities.enums.PieceColor;
 
 public abstract class Piece {
     private char icon;
-    private Color color;
+    private PieceColor pieceColor;
     protected int currentRow, currentCol;
     protected boolean[][] permittedMoves;
     protected int moveCount = 0;
@@ -12,8 +12,8 @@ public abstract class Piece {
     protected Board board;
     protected boolean isCheckingKing;
 
-    public Piece(Color color, int initialRow, int initialCol, Board board, char icon){
-        this.color = color;
+    public Piece(PieceColor pieceColor, int initialRow, int initialCol, Board board, char icon){
+        this.pieceColor = pieceColor;
         this.currentRow = initialRow;
         this.currentCol = initialCol;
         this.icon = icon;
@@ -33,8 +33,8 @@ public abstract class Piece {
         return permittedMoves[row][col];
     }
 
-    public Color getColor(){
-        return color;
+    public PieceColor getColor(){
+        return pieceColor;
     }
 
     public int getMoveCount(){

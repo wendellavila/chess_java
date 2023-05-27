@@ -1,11 +1,11 @@
 package entities;
 
-import entities.enums.Color;
+import entities.enums.PieceColor;
 
 public class Queen extends Piece {
 
-    public Queen(Color color, int initialRow, int initialCol, Board board){
-        super(color, initialRow, initialCol, board, '♛');
+    public Queen(PieceColor pieceColor, int initialRow, int initialCol, Board board){
+        super(pieceColor, initialRow, initialCol, board, '♛');
     }
 
     public void calculatePermittedMoves(){
@@ -19,12 +19,10 @@ public class Queen extends Piece {
                 if((currentRow + (i * direction[0]) < 8) && (currentRow + (i * direction[0]) >= 0) && (currentCol + (i * direction[1]) < 8) && (currentCol + (i * direction[1]) >= 0)){
                     Piece piece = board.getPieceByPosition(currentRow + (i * direction[0]), currentCol + (i * direction[1]));
                     if(piece == null){
-                        System.out.println('a');
                         permittedMoves[currentRow + (i * direction[0])][currentCol + (i * direction[1])] = true;
                     }
                     else {
                         if(piece.getColor() != getColor()){
-                            System.out.println('b');
                             permittedMoves[currentRow + (i * direction[0])][currentCol + (i * direction[1])] = true;
                             if(piece instanceof King){
                                 isCheckingKing = true;

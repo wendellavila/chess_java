@@ -1,6 +1,6 @@
 package entities.enums;
 
-public enum Color {
+public enum PieceColor {
     WHITE,
     BLACK,
     ;

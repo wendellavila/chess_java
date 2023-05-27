@@ -1,7 +1,6 @@
 package entities;
 
-import entities.enums.Color;
-import entities.enums.InvalidMove;
+import entities.enums.PieceColor;
 import entities.exceptions.CheckmateException;
 import entities.exceptions.InvalidMoveException;
 import entities.exceptions.InvalidNotationException;
@@ -29,31 +28,31 @@ public class Board {
 
     public Board(){
 
-        positions[0][0] = new Rook(Color.WHITE, 0, 0, this);
-        positions[0][1] = new Knight(Color.WHITE, 0, 1, this);
-        positions[0][2] = new Bishop(Color.WHITE, 0, 2, this);
-        positions[0][3] = new King(Color.WHITE, 0, 3, this);
-        positions[0][4] = new Queen(Color.WHITE, 0, 4, this);
-        positions[0][5] = new Bishop(Color.WHITE, 0, 5, this);
-        positions[0][6] = new Knight(Color.WHITE, 0, 6, this);
-        positions[0][7] = new Rook(Color.WHITE, 0, 7, this);
+        positions[0][0] = new Rook(PieceColor.WHITE, 0, 0, this);
+        positions[0][1] = new Knight(PieceColor.WHITE, 0, 1, this);
+        positions[0][2] = new Bishop(PieceColor.WHITE, 0, 2, this);
+        positions[0][3] = new King(PieceColor.WHITE, 0, 3, this);
+        positions[0][4] = new Queen(PieceColor.WHITE, 0, 4, this);
+        positions[0][5] = new Bishop(PieceColor.WHITE, 0, 5, this);
+        positions[0][6] = new Knight(PieceColor.WHITE, 0, 6, this);
+        positions[0][7] = new Rook(PieceColor.WHITE, 0, 7, this);
 
         for(int j=0; j < 8; j++){
-            positions[1][j] = new Pawn(Color.WHITE, 1, j, this);
+            positions[1][j] = new Pawn(PieceColor.WHITE, 1, j, this);
             for (int i = 2; i < 6; i++){
                 positions[i][j] = null;
             }
-            positions[6][j] = new Pawn(Color.BLACK, 6, j, this);
+            positions[6][j] = new Pawn(PieceColor.BLACK, 6, j, this);
         }
 
-        positions[7][0] = new Rook(Color.BLACK, 7, 0, this);
-        positions[7][1] = new Knight(Color.BLACK, 7, 1, this);
-        positions[7][2] = new Bishop(Color.BLACK, 7, 2, this);
-        positions[7][3] = new King(Color.BLACK, 7, 3, this);
-        positions[7][4] = new Queen(Color.BLACK, 7, 4, this);
-        positions[7][5] = new Bishop(Color.BLACK, 7, 5, this);
-        positions[7][6] = new Knight(Color.BLACK, 7, 6, this);
-        positions[7][7] = new Rook(Color.BLACK, 7, 7, this);
+        positions[7][0] = new Rook(PieceColor.BLACK, 7, 0, this);
+        positions[7][1] = new Knight(PieceColor.BLACK, 7, 1, this);
+        positions[7][2] = new Bishop(PieceColor.BLACK, 7, 2, this);
+        positions[7][3] = new King(PieceColor.BLACK, 7, 3, this);
+        positions[7][4] = new Queen(PieceColor.BLACK, 7, 4, this);
+        positions[7][5] = new Bishop(PieceColor.BLACK, 7, 5, this);
+        positions[7][6] = new Knight(PieceColor.BLACK, 7, 6, this);
+        positions[7][7] = new Rook(PieceColor.BLACK, 7, 7, this);
 
         for(int i : new int[]{0, 1, 6, 7}){
             for(int j = 0; j < 8; j++){
@@ -93,7 +92,7 @@ public class Board {
                 Piece destination = positions[destinationRow][destinationCol];
                 //capture
                 if (destination != null) {
-                    if(destination.getColor() == Color.WHITE){
+                    if(destination.getColor() == PieceColor.WHITE){
                         capturedFromWhite += destination.toString();
                     }
                     else {
@@ -148,7 +147,7 @@ public class Board {
                 //if row number + col number is even, square is light
                 String tileColor = (i+j+2) % 2 == 0 ? ANSI_GREEN_BG : ANSI_BROWN_BG;
                 if(positions[i][j] != null){
-                    String pieceColor = positions[i][j].getColor() == Color.WHITE ? ANSI_WHITE : ANSI_BLACK;
+                    String pieceColor = positions[i][j].getColor() == PieceColor.WHITE ? ANSI_WHITE : ANSI_BLACK;
                     output.append(tileColor).append(" ").append(pieceColor).append(positions[i][j].toString()).append(" ").append(ANSI_RESET);
                 }
                 else {

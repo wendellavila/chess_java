@@ -1,11 +1,11 @@
 package entities;
 
-import entities.enums.Color;
+import entities.enums.PieceColor;
 
 public class Pawn extends Piece {
 
-    public Pawn(Color color, int initialRow, int initialCol, Board board){
-        super(color, initialRow, initialCol, board, '♟');
+    public Pawn(PieceColor pieceColor, int initialRow, int initialCol, Board board){
+        super(pieceColor, initialRow, initialCol, board, '♟');
     }
 
     public void calculatePermittedMoves(){
@@ -15,7 +15,7 @@ public class Pawn extends Piece {
 
         //one square row movement
         //direction is different for white and black
-        int i = getColor() == Color.WHITE ? 1 : -1;
+        int i = getColor() == PieceColor.WHITE ? 1 : -1;
         if((currentRow + i < 8) && (currentRow + i >= 0) && (board.getPieceByPosition(currentRow + i, currentCol) == null)){
             permittedMoves[currentRow + i][currentCol] = true;
         }
@@ -23,7 +23,7 @@ public class Pawn extends Piece {
         //two square move
         if(moveCount == 0){
             //direction is different for white and black
-            i = getColor() == Color.WHITE ? 2 : -2;
+            i = getColor() == PieceColor.WHITE ? 2 : -2;
             if(board.getPieceByPosition(currentRow + i, currentCol) == null){
                 permittedMoves[currentRow + i][currentCol] = true;
             }
@@ -45,7 +45,7 @@ public class Pawn extends Piece {
         }
 
         //en passant
-        if((getColor() == Color.WHITE && currentRow == 5) || (getColor() == Color.BLACK && currentRow == 4)){
+        if((getColor() == PieceColor.WHITE && currentRow == 5) || (getColor() == PieceColor.BLACK && currentRow == 4)){
             for(int j : new int[]{1, -1}){
                 if((currentCol + j < 8) && (currentCol + j >= 0)){
                     Piece piece = board.getPieceByPosition(currentRow, currentCol + j);

@@ -1,11 +1,11 @@
 package entities;
 
-import entities.enums.Color;
+import entities.enums.PieceColor;
 
 public class King extends Piece {
 
-    public King(Color color, int initialRow, int initialCol, Board board){
-        super(color, initialRow, initialCol, board, '♚');
+    public King(PieceColor pieceColor, int initialRow, int initialCol, Board board){
+        super(pieceColor, initialRow, initialCol, board, '♚');
     }
 
     public void calculatePermittedMoves(){

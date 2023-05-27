@@ -1,18 +1,19 @@
-package application;
+package entities;
 
-import entities.Board;
+import entities.enums.PieceColor;
 import entities.exceptions.CheckmateException;
 import entities.exceptions.InvalidMoveException;
 import entities.exceptions.InvalidNotationException;
 
 import java.util.Scanner;
 
-public class Main {
+public class Match {
 
-    public static void main(String[] args) {
+    public static void playPVPMatch() {
+
+        int turnCount = 1;
         Board board = new Board();
         Scanner sc = new Scanner(System.in);
-        int turnCount = 1;
 
         System.out.println(board);
         String currentColor = board.getMoveCount() % 2 == 0 ? "Whites" : "Blacks";
@@ -35,5 +36,9 @@ public class Main {
             }
         }
         sc.close();
+    }
+
+    public static void playPVEMatch(PieceColor pieceColor){
+        //
     }
 }

@@ -1,11 +1,11 @@
 package entities;
 
-import entities.enums.Color;
+import entities.enums.PieceColor;
 
 public class Knight extends Piece {
 
-    public Knight(Color color, int initialRow, int initialCol, Board board){
-        super(color, initialRow, initialCol, board, '♞');
+    public Knight(PieceColor pieceColor, int initialRow, int initialCol, Board board){
+        super(pieceColor, initialRow, initialCol, board, '♞');
     }
 
     public void calculatePermittedMoves(){

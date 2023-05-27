@@ -17,7 +17,7 @@ public class Board {
     private final Piece[][] positions = new Piece[8][8];
     private String capturedFromWhite = "";
     private String capturedFromBlack = "";
-    private LinkedList<NotationEntry> latestPlays;
+    private final LinkedList<NotationEntry> latestPlays;
 
     //regex used by movePieces
     private static final Pattern inputPattern = Pattern.compile("([a-zA-Z])(\\d)\\s?-?([a-zA-Z])(\\d)");
@@ -85,7 +85,7 @@ public class Board {
 
             Piece movingPiece = positions[originRow][originCol];
             if(movingPiece != null && movingPiece.isMovePermitted(destinationRow, destinationCol)){
-                moveCount++;
+
                 Piece destination = positions[destinationRow][destinationCol];
                 String notation;
                 //capture
@@ -106,6 +106,28 @@ public class Board {
 
                 positions[destinationRow][destinationCol] = movingPiece;
                 positions[originRow][originCol] = null;
+
+                //en passant
+                if(movingPiece instanceof Pawn && ((Pawn) movingPiece).isMoveEnPassant(destinationRow, destinationCol)){
+                    //removing enemy pawn after move
+                    int direction = movingPiece.getColor() == PieceColor.WHITE ? -1 : 1;
+                    positions[destinationRow + direction][destinationCol] = null;
+                }
+                //castling
+                else if(movingPiece instanceof King && ((King) movingPiece).isMoveCastling(destinationRow, destinationCol)){
+                    //moving rook from left to right of king after king moved
+                    if(positions[destinationRow][destinationCol-1] instanceof Rook){
+                        positions[destinationRow][destinationCol+1] = positions[destinationRow][destinationCol-1];
+                        positions[destinationRow][destinationCol-1] = null;
+                    }
+                    //moving rook from right to left of king after king moved
+                    else {
+                        positions[destinationRow][destinationCol-1] = positions[destinationRow][destinationCol+1];
+                        positions[destinationRow][destinationCol+1] = null;
+                    }
+                }
+
+                moveCount++;
                 movingPiece.updatePosition(destinationRow, destinationCol, moveCount);
 
                 if(destination instanceof King){

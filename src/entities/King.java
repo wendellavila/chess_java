@@ -8,6 +8,10 @@ public class King extends Piece {
         super(pieceColor, initialRow, initialCol, board, '♚', "K");
     }
 
+    public boolean isMoveCastling(int destinationRow, int destinationCol){
+        return false;
+    }
+
     public void calculatePermittedMoves(){
         //resetting status variables
         isCheckingKing = false;

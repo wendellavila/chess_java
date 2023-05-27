@@ -8,6 +8,10 @@ public class Pawn extends Piece {
         super(pieceColor, initialRow, initialCol, board, '♟', "");
     }
 
+    public boolean isMoveEnPassant(int destinationRow, int destinationCol){
+        return false;
+    }
+
     public void calculatePermittedMoves(){
         //resetting status variables
         isCheckingKing = false;
@@ -49,7 +53,9 @@ public class Pawn extends Piece {
             for(int j : new int[]{1, -1}){
                 if((currentCol + j < 8) && (currentCol + j >= 0)){
                     Piece piece = board.getPieceByPosition(currentRow, currentCol + j);
-                    if(piece instanceof Pawn && piece.getColor() != getColor() && piece.getMoveCount() == 1){
+                    if(piece instanceof Pawn && piece.getColor() != getColor() && piece.getMoveCount() == 1 &&
+                            piece.getLastMove() == board.getMoveCount() &&
+                            board.getPieceByPosition(currentRow + i, currentCol + j) == null){
                         permittedMoves[currentRow + i][currentCol + j] = true;
                     }
                 }

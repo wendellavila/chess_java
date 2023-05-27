@@ -45,6 +45,10 @@ public abstract class Piece {
         return moveCount;
     }
 
+    public int getLastMove(){
+        return lastMoved;
+    }
+
     public String getNotationSymbol(){
         return notationSymbol;
     }

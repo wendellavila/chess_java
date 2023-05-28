@@ -8,6 +8,10 @@ public class Queen extends Piece {
         super(pieceColor, initialRow, initialCol, board, '♛', "Q");
     }
 
+    public Queen(PieceColor pieceColor, int initialRow, int initialCol, Board board, int moveCount, int lastMoved){
+        super(pieceColor, initialRow, initialCol, board, '♛', "Q", moveCount, lastMoved);
+    }
+
     public void calculatePermittedMoves(){
         //resetting status variables
         isCheckingKing = false;

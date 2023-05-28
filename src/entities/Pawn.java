@@ -8,6 +8,18 @@ public class Pawn extends Piece {
         super(pieceColor, initialRow, initialCol, board, '♟', "");
     }
 
+    public boolean isMovePromotion(int destinationRow, int destinationCol){
+        if(permittedMoves[destinationRow][destinationCol]){
+            if(pieceColor == PieceColor.WHITE && currentRow == 6 && destinationRow == 7){
+                return true;
+            }
+            else if(pieceColor == PieceColor.BLACK && currentRow == 1 && destinationRow == 0){
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean isMoveEnPassant(int destinationRow, int destinationCol){
         int direction = pieceColor == PieceColor.WHITE ? -1 : 1 ;
         Piece enPassantCapture = board.getPieceByPosition(destinationRow + direction, destinationCol);

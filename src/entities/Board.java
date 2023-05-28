@@ -19,6 +19,12 @@ public class Board {
     private String capturedFromBlack = "";
     private final LinkedList<NotationEntry> latestPlays;
 
+    //last move coordinates used in toString()
+    private int lastOriginRow = -1;
+    private int lastOriginCol = -1;
+    private int lastDestinationRow = -1;
+    private int lastDestinationCol = -1;
+
     //regex used by movePieces
     private static final Pattern inputPattern = Pattern.compile("([a-zA-Z])(\\d)\\s?-?([a-zA-Z])(\\d)");
 
@@ -138,10 +144,23 @@ public class Board {
 
                 notation = movingPiece.getNotationSymbol() + matcher.group(1) + matcher.group(2) + captureNotation +
                         matcher.group(3) + matcher.group(4);
+
+                if(movingPiece instanceof Pawn && ((Pawn) movingPiece).isMovePromotion(destinationRow, destinationCol)){
+                    movingPiece = new Queen(movingPiece.getColor(), destinationRow, destinationCol, this,
+                            movingPiece.getMoveCount() + 1, moveCount);
+                    extraNotation += "=" + movingPiece.getNotationSymbol();
+                }
+                else {
+                    movingPiece.updatePosition(destinationRow, destinationCol, moveCount);
+                }
+
                 positions[destinationRow][destinationCol] = movingPiece;
                 positions[originRow][originCol] = null;
                 moveCount++;
-                movingPiece.updatePosition(destinationRow, destinationCol, moveCount);
+                lastOriginRow = originRow;
+                lastOriginCol = originCol;
+                lastDestinationRow = destinationRow;
+                lastDestinationCol = destinationCol;
 
                 if(movingPiece.isCheckingKing){
                     extraNotation += "+";
@@ -199,7 +218,14 @@ public class Board {
             output.append(" ").append(i+1).append(" ");
             for(int j=0; j < 8; j++){
                 //if row number + col number is even, square is light
-                String tileColor = (i+j+2) % 2 == 0 ? ANSIColors.ANSI_GREEN_BG : ANSIColors.ANSI_BROWN_BG;
+                String tileColor;
+                if((i == lastOriginRow && j == lastOriginCol) || (i == lastDestinationRow && j == lastDestinationCol)){
+                    tileColor = ANSIColors.ANSI_YELLOW_BG;
+                }
+                else {
+                    tileColor = (i+j+2) % 2 == 0 ? ANSIColors.ANSI_GREEN_BG : ANSIColors.ANSI_BROWN_BG;
+                }
+
                 if(positions[i][j] != null){
                     String pieceColor = positions[i][j].getColor() == PieceColor.WHITE ? ANSIColors.ANSI_WHITE : ANSIColors.ANSI_BLACK;
                     output.append(tileColor).append(" ").append(pieceColor).append(positions[i][j].toString()).append(" ").append(ANSIColors.ANSI_RESET);

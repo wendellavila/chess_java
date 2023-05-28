@@ -21,7 +21,7 @@ public class Knight extends Piece {
                     if(piece == null){
                         permittedMoves[currentRow + i][currentCol + j] = true;
                     }
-                    else if(piece.getColor() != getColor()){
+                    else if(piece.getColor() != pieceColor){
                         permittedMoves[currentRow + i][currentCol + j] = true;
                         if(piece instanceof King){
                             isCheckingKing = true;
@@ -38,7 +38,7 @@ public class Knight extends Piece {
                     if(piece == null){
                         permittedMoves[currentRow + i][currentCol + j] = true;
                     }
-                    else if(piece.getColor() != getColor()){
+                    else if(piece.getColor() != pieceColor){
                         permittedMoves[currentRow + i][currentCol + j] = true;
                         if(piece instanceof King){
                             isCheckingKing = true;

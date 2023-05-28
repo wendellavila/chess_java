@@ -88,7 +88,10 @@ public class Board {
 
                 Piece destination = positions[destinationRow][destinationCol];
                 String notation;
-                //capture
+                String captureNotation = "";
+                String extraNotation = "";
+
+                //regular capture
                 if (destination != null) {
                     if(destination.getColor() == PieceColor.WHITE){
                         capturedFromWhite += destination.toString();
@@ -96,43 +99,56 @@ public class Board {
                     else {
                         capturedFromBlack += destination.toString();
                     }
-                    notation = movingPiece.getNotationSymbol() + matcher.group(1) + matcher.group(2) + "x" +
-                            matcher.group(3) + matcher.group(4);
+                    captureNotation = "x";
                 }
+                //move to empty or castling or en passant
                 else {
-                    notation = movingPiece.getNotationSymbol() + matcher.group(1) + matcher.group(2) +
-                            matcher.group(3) + matcher.group(4);
+                    //en passant
+                    if(movingPiece instanceof Pawn && ((Pawn) movingPiece).isMoveEnPassant(destinationRow, destinationCol)){
+                        //removing enemy pawn after move
+                        int direction = movingPiece.getColor() == PieceColor.WHITE ? -1 : 1;
+                        Piece enPassantCapture = positions[destinationRow + direction][destinationCol];
+
+                        if(enPassantCapture.getColor() == PieceColor.WHITE){
+                            capturedFromWhite += enPassantCapture.toString();
+                        }
+                        else {
+                            capturedFromBlack += enPassantCapture.toString();
+                        }
+
+                        positions[destinationRow + direction][destinationCol] = null;
+                        extraNotation = " e.p.";
+                    }
+                    //castling
+                    else if(movingPiece instanceof King && ((King) movingPiece).isMoveCastling(destinationRow, destinationCol)){
+                        //moving rook from left to right of king after king moved
+                        if(positions[destinationRow][destinationCol-1] instanceof Rook){
+                            positions[destinationRow][destinationCol+1] = positions[destinationRow][destinationCol-1];
+                            positions[destinationRow][destinationCol-1] = null;
+                            extraNotation = " (O-O-O)";
+                        }
+                        //moving rook from right to left of king after king moved
+                        else {
+                            positions[destinationRow][destinationCol-1] = positions[destinationRow][destinationCol+1];
+                            positions[destinationRow][destinationCol+1] = null;
+                            extraNotation = " (O-O)";
+                        }
+                    }
                 }
 
+                notation = movingPiece.getNotationSymbol() + matcher.group(1) + matcher.group(2) + captureNotation +
+                        matcher.group(3) + matcher.group(4);
                 positions[destinationRow][destinationCol] = movingPiece;
                 positions[originRow][originCol] = null;
-
-                //en passant
-                if(movingPiece instanceof Pawn && ((Pawn) movingPiece).isMoveEnPassant(destinationRow, destinationCol)){
-                    //removing enemy pawn after move
-                    int direction = movingPiece.getColor() == PieceColor.WHITE ? -1 : 1;
-                    positions[destinationRow + direction][destinationCol] = null;
-                }
-                //castling
-                else if(movingPiece instanceof King && ((King) movingPiece).isMoveCastling(destinationRow, destinationCol)){
-                    //moving rook from left to right of king after king moved
-                    if(positions[destinationRow][destinationCol-1] instanceof Rook){
-                        positions[destinationRow][destinationCol+1] = positions[destinationRow][destinationCol-1];
-                        positions[destinationRow][destinationCol-1] = null;
-                    }
-                    //moving rook from right to left of king after king moved
-                    else {
-                        positions[destinationRow][destinationCol-1] = positions[destinationRow][destinationCol+1];
-                        positions[destinationRow][destinationCol+1] = null;
-                    }
-                }
-
                 moveCount++;
                 movingPiece.updatePosition(destinationRow, destinationCol, moveCount);
 
+                if(movingPiece.isCheckingKing){
+                    extraNotation += "+";
+                }
+                
                 if(destination instanceof King){
-                    notation += "#";
-                    latestPlays.addFirst(new NotationEntry(notation, movingPiece.getColor(), movingPiece.toString()));
+                    latestPlays.addFirst(new NotationEntry(notation + extraNotation + "#", movingPiece.getColor(), movingPiece.toString()));
                     if(latestPlays.size() > 8){
                         latestPlays.removeLast();
                     }
@@ -146,10 +162,9 @@ public class Board {
                         }
                     }
                 }
-                if(movingPiece.isCheckingKing){
-                    notation += "+";
-                }
-                latestPlays.addFirst(new NotationEntry(notation, movingPiece.getColor(), movingPiece.toString()));
+
+
+                latestPlays.addFirst(new NotationEntry(notation + extraNotation, movingPiece.getColor(), movingPiece.toString()));
                 if(latestPlays.size() > 8){
                     latestPlays.removeLast();
                 }

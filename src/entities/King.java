@@ -25,7 +25,7 @@ public class King extends Piece {
                         permittedMoves[currentRow + i][currentCol + j] = true;
                     }
                     else {
-                        if(piece.getColor() != getColor()){
+                        if(piece.getColor() != pieceColor){
                             permittedMoves[currentRow + i][currentCol + j] = true;
                             if(piece instanceof King){
                                 isCheckingKing = true;

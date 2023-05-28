@@ -4,16 +4,15 @@ import entities.enums.PieceColor;
 
 public abstract class Piece {
 
-    private final PieceColor pieceColor;
-    protected int currentRow, currentCol;
-    protected Board board;
     private final char icon;
     private final String notationSymbol;
+    protected final PieceColor pieceColor;
+    protected int currentRow, currentCol;
+    protected Board board;
     protected boolean[][] permittedMoves;
     protected int moveCount = 0;
     protected int lastMoved = 0;
     protected boolean isCheckingKing;
-
 
     public Piece(PieceColor pieceColor, int initialRow, int initialCol, Board board, char icon, String notationSymbol){
         this.pieceColor = pieceColor;

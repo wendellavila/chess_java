@@ -22,7 +22,7 @@ public class Queen extends Piece {
                         permittedMoves[currentRow + (i * direction[0])][currentCol + (i * direction[1])] = true;
                     }
                     else {
-                        if(piece.getColor() != getColor()){
+                        if(piece.getColor() != pieceColor){
                             permittedMoves[currentRow + (i * direction[0])][currentCol + (i * direction[1])] = true;
                             if(piece instanceof King){
                                 isCheckingKing = true;

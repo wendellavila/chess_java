@@ -146,7 +146,7 @@ public class Board {
                 if(movingPiece.isCheckingKing){
                     extraNotation += "+";
                 }
-                
+
                 if(destination instanceof King){
                     latestPlays.addFirst(new NotationEntry(notation + extraNotation + "#", movingPiece.getColor(), movingPiece.toString()));
                     if(latestPlays.size() > 8){
@@ -162,7 +162,6 @@ public class Board {
                         }
                     }
                 }
-
 
                 latestPlays.addFirst(new NotationEntry(notation + extraNotation, movingPiece.getColor(), movingPiece.toString()));
                 if(latestPlays.size() > 8){
@@ -195,7 +194,7 @@ public class Board {
         Arrays.sort(temp);
         capturedFromWhite = new String(temp);
 
-        StringBuilder output = new StringBuilder("    a  b  c  d  e  f  g  h       Latest plays:\n");
+        StringBuilder output = new StringBuilder("    a  b  c  d  e  f  g  h       Latest moves\n");
         for (int i = 7; i >= 0; i--){
             output.append(" ").append(i+1).append(" ");
             for(int j=0; j < 8; j++){

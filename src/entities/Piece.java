@@ -6,29 +6,27 @@ public abstract class Piece {
 
     private final char icon;
     private final String notationSymbol;
-    protected final PieceColor pieceColor;
-    protected int currentRow, currentCol;
+    protected final PieceColor color;
+    protected Position position;
     protected Board board;
-    protected boolean[][] permittedMoves;
+    protected boolean[][] validMoves;
     protected int moveCount;
     protected int lastMoved;
     protected boolean isCheckingKing;
 
-    public Piece(PieceColor pieceColor, int initialRow, int initialCol, Board board, char icon, String notationSymbol){
-        this.pieceColor = pieceColor;
-        this.currentRow = initialRow;
-        this.currentCol = initialCol;
+    public Piece(PieceColor color, int row, int col, Board board, char icon, String notationSymbol){
+        this.color = color;
+        this.position = new Position(row, col);
         this.icon = icon;
         this.board = board;
         this.notationSymbol = notationSymbol;
-        moveCount = 0;
-        lastMoved = 0;
+        this.moveCount = 0;
+        this.lastMoved = 0;
     }
 
-    public Piece(PieceColor pieceColor, int initialRow, int initialCol, Board board, char icon, String notationSymbol, int moveCount, int lastMoved){
-        this.pieceColor = pieceColor;
-        this.currentRow = initialRow;
-        this.currentCol = initialCol;
+    public Piece(PieceColor color, int row, int col, Board board, char icon, String notationSymbol, int moveCount, int lastMoved){
+        this.color = color;
+        this.position = new Position(row, col);
         this.icon = icon;
         this.board = board;
         this.notationSymbol = notationSymbol;
@@ -37,20 +35,19 @@ public abstract class Piece {
     }
 
     public void updatePosition(int row, int col, int boardMoveCount){
-        currentRow = row;
-        currentCol = col;
+        position.setPosition(row, col);
         moveCount++;
         lastMoved = boardMoveCount;
     }
 
-    public abstract void calculatePermittedMoves();
+    public abstract void calculateValidMoves();
 
-    public boolean isMovePermitted(int row, int col){
-        return permittedMoves[row][col];
+    public boolean isMoveValid(int row, int col){
+        return validMoves[row][col];
     }
 
     public PieceColor getColor(){
-        return pieceColor;
+        return color;
     }
 
     public int getMoveCount(){

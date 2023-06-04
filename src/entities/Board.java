@@ -13,59 +13,59 @@ import java.util.regex.Pattern;
 
 public class Board {
 
+    private final Piece[][] boardGrid = new Piece[8][8];
     private int moveCount = 0;
-    private final Piece[][] positions = new Piece[8][8];
+
     private String capturedFromWhite = "";
     private String capturedFromBlack = "";
+
     private final LinkedList<NotationEntry> latestPlays;
 
     //last move coordinates used in toString()
-    private int lastOriginRow = -1;
-    private int lastOriginCol = -1;
-    private int lastDestinationRow = -1;
-    private int lastDestinationCol = -1;
+    private final Position lastPlayOrigin = new Position();
+    private final Position lastPlayDestination = new Position();
 
     //regex used by movePieces
     private static final Pattern inputPattern = Pattern.compile("([a-zA-Z])(\\d)\\s?-?([a-zA-Z])(\\d)");
 
     public Board(){
 
-        positions[0][0] = new Rook(PieceColor.WHITE, 0, 0, this);
-        positions[0][1] = new Knight(PieceColor.WHITE, 0, 1, this);
-        positions[0][2] = new Bishop(PieceColor.WHITE, 0, 2, this);
-        positions[0][3] = new King(PieceColor.WHITE, 0, 3, this);
-        positions[0][4] = new Queen(PieceColor.WHITE, 0, 4, this);
-        positions[0][5] = new Bishop(PieceColor.WHITE, 0, 5, this);
-        positions[0][6] = new Knight(PieceColor.WHITE, 0, 6, this);
-        positions[0][7] = new Rook(PieceColor.WHITE, 0, 7, this);
+        boardGrid[0][0] = new Rook(PieceColor.WHITE, 0, 0, this);
+        boardGrid[0][1] = new Knight(PieceColor.WHITE, 0, 1, this);
+        boardGrid[0][2] = new Bishop(PieceColor.WHITE, 0, 2, this);
+        boardGrid[0][3] = new King(PieceColor.WHITE, 0, 3, this);
+        boardGrid[0][4] = new Queen(PieceColor.WHITE, 0, 4, this);
+        boardGrid[0][5] = new Bishop(PieceColor.WHITE, 0, 5, this);
+        boardGrid[0][6] = new Knight(PieceColor.WHITE, 0, 6, this);
+        boardGrid[0][7] = new Rook(PieceColor.WHITE, 0, 7, this);
 
         for(int j=0; j < 8; j++){
-            positions[1][j] = new Pawn(PieceColor.WHITE, 1, j, this);
+            boardGrid[1][j] = new Pawn(PieceColor.WHITE, 1, j, this);
             for (int i = 2; i < 6; i++){
-                positions[i][j] = null;
+                boardGrid[i][j] = null;
             }
-            positions[6][j] = new Pawn(PieceColor.BLACK, 6, j, this);
+            boardGrid[6][j] = new Pawn(PieceColor.BLACK, 6, j, this);
         }
 
-        positions[7][0] = new Rook(PieceColor.BLACK, 7, 0, this);
-        positions[7][1] = new Knight(PieceColor.BLACK, 7, 1, this);
-        positions[7][2] = new Bishop(PieceColor.BLACK, 7, 2, this);
-        positions[7][3] = new King(PieceColor.BLACK, 7, 3, this);
-        positions[7][4] = new Queen(PieceColor.BLACK, 7, 4, this);
-        positions[7][5] = new Bishop(PieceColor.BLACK, 7, 5, this);
-        positions[7][6] = new Knight(PieceColor.BLACK, 7, 6, this);
-        positions[7][7] = new Rook(PieceColor.BLACK, 7, 7, this);
+        boardGrid[7][0] = new Rook(PieceColor.BLACK, 7, 0, this);
+        boardGrid[7][1] = new Knight(PieceColor.BLACK, 7, 1, this);
+        boardGrid[7][2] = new Bishop(PieceColor.BLACK, 7, 2, this);
+        boardGrid[7][3] = new King(PieceColor.BLACK, 7, 3, this);
+        boardGrid[7][4] = new Queen(PieceColor.BLACK, 7, 4, this);
+        boardGrid[7][5] = new Bishop(PieceColor.BLACK, 7, 5, this);
+        boardGrid[7][6] = new Knight(PieceColor.BLACK, 7, 6, this);
+        boardGrid[7][7] = new Rook(PieceColor.BLACK, 7, 7, this);
 
         for(int i : new int[]{0, 1, 6, 7}){
             for(int j = 0; j < 8; j++){
-                positions[i][j].calculatePermittedMoves();
+                boardGrid[i][j].calculateValidMoves();
             }
         }
         latestPlays = new LinkedList<>();
     }
 
-    public Piece getPieceByPosition(int i, int j){
-        return positions[i][j];
+    public Piece getPiece(int row, int col){
+        return boardGrid[row][col];
     }
 
     public int getMoveCount(){
@@ -74,46 +74,47 @@ public class Board {
 
     public void movePieces(String input) throws InvalidNotationException, InvalidMoveException, CheckmateException {
 
-        int originRow, originCol, destinationRow, destinationCol;
+        Position origin = new Position(), destination = new Position();
         Matcher matcher = inputPattern.matcher(input);
 
         if(matcher.matches()) {
-            originRow = Integer.parseInt(matcher.group(2)) - 1;
-            destinationRow = Integer.parseInt(matcher.group(4)) - 1;
+            origin.setRow(Integer.parseInt(matcher.group(2)) - 1);
+            destination.setRow(Integer.parseInt(matcher.group(4)) - 1);
             //converting letters a-h to integers 0-7
-            originCol = (int) matcher.group(1).toLowerCase().charAt(0) - (int)'a';
-            destinationCol = (int) matcher.group(3).toLowerCase().charAt(0) - (int)'a';
+            origin.setCol((int) matcher.group(1).toLowerCase().charAt(0) - (int)'a');
+            destination.setCol((int) matcher.group(3).toLowerCase().charAt(0) - (int)'a');
 
-            if(originRow < 0 || originRow > 7 || destinationRow < 0 || destinationRow > 7 ||
-                    originCol < 0 || originCol > 7 || destinationCol < 0 || destinationCol > 7){
+            if(origin.getRow() < 0 || origin.getRow() > 7 || destination.getRow() < 0 || destination.getRow() > 7 ||
+                    origin.getCol() < 0 || origin.getCol() > 7 || destination.getCol() < 0 || destination.getCol() > 7){
                 throw new InvalidNotationException(input);
             }
 
-            Piece movingPiece = positions[originRow][originCol];
-            if(movingPiece != null && movingPiece.isMovePermitted(destinationRow, destinationCol)){
+            Piece movingPiece = boardGrid[origin.getRow()][origin.getCol()];
+            if(movingPiece != null && movingPiece.isMoveValid(destination.getRow(), destination.getCol())){
 
-                Piece destination = positions[destinationRow][destinationCol];
+                Piece pieceDestination = boardGrid[destination.getRow()][destination.getCol()];
+                
                 String notation;
                 String captureNotation = "";
                 String extraNotation = "";
 
                 //regular capture
-                if (destination != null) {
-                    if(destination.getColor() == PieceColor.WHITE){
-                        capturedFromWhite += destination.toString();
+                if (pieceDestination != null) {
+                    if(pieceDestination.getColor() == PieceColor.WHITE){
+                        capturedFromWhite += pieceDestination.toString();
                     }
                     else {
-                        capturedFromBlack += destination.toString();
+                        capturedFromBlack += pieceDestination.toString();
                     }
                     captureNotation = "x";
                 }
                 //move to empty or castling or en passant
                 else {
                     //en passant
-                    if(movingPiece instanceof Pawn && ((Pawn) movingPiece).isMoveEnPassant(destinationRow, destinationCol)){
+                    if(movingPiece instanceof Pawn && ((Pawn) movingPiece).isMoveEnPassant(destination.getRow(), destination.getCol())){
                         //removing enemy pawn after move
                         int direction = movingPiece.getColor() == PieceColor.WHITE ? -1 : 1;
-                        Piece enPassantCapture = positions[destinationRow + direction][destinationCol];
+                        Piece enPassantCapture = boardGrid[destination.getRow() + direction][destination.getCol()];
 
                         if(enPassantCapture.getColor() == PieceColor.WHITE){
                             capturedFromWhite += enPassantCapture.toString();
@@ -122,21 +123,21 @@ public class Board {
                             capturedFromBlack += enPassantCapture.toString();
                         }
 
-                        positions[destinationRow + direction][destinationCol] = null;
+                        boardGrid[destination.getRow() + direction][destination.getCol()] = null;
                         extraNotation = " e.p.";
                     }
                     //castling
-                    else if(movingPiece instanceof King && ((King) movingPiece).isMoveCastling(destinationRow, destinationCol)){
+                    else if(movingPiece instanceof King && ((King) movingPiece).isMoveCastling(destination.getRow(), destination.getCol())){
                         //moving rook from left to right of king after king moved
-                        if(positions[destinationRow][destinationCol-1] instanceof Rook){
-                            positions[destinationRow][destinationCol+1] = positions[destinationRow][destinationCol-1];
-                            positions[destinationRow][destinationCol-1] = null;
+                        if(boardGrid[destination.getRow()][destination.getCol()-1] instanceof Rook){
+                            boardGrid[destination.getRow()][destination.getCol()+1] = boardGrid[destination.getRow()][destination.getCol()-1];
+                            boardGrid[destination.getRow()][destination.getCol()-1] = null;
                             extraNotation = " (O-O-O)";
                         }
                         //moving rook from right to left of king after king moved
                         else {
-                            positions[destinationRow][destinationCol-1] = positions[destinationRow][destinationCol+1];
-                            positions[destinationRow][destinationCol+1] = null;
+                            boardGrid[destination.getRow()][destination.getCol()-1] = boardGrid[destination.getRow()][destination.getCol()+1];
+                            boardGrid[destination.getRow()][destination.getCol()+1] = null;
                             extraNotation = " (O-O)";
                         }
                     }
@@ -145,28 +146,27 @@ public class Board {
                 notation = movingPiece.getNotationSymbol() + matcher.group(1) + matcher.group(2) + captureNotation +
                         matcher.group(3) + matcher.group(4);
 
-                if(movingPiece instanceof Pawn && ((Pawn) movingPiece).isMovePromotion(destinationRow, destinationCol)){
-                    movingPiece = new Queen(movingPiece.getColor(), destinationRow, destinationCol, this,
+                if(movingPiece instanceof Pawn && ((Pawn) movingPiece).isMovePromotion(destination.getRow(), destination.getCol())){
+                    movingPiece = new Queen(movingPiece.getColor(), destination.getRow(), destination.getCol(), this,
                             movingPiece.getMoveCount() + 1, moveCount);
                     extraNotation += "=" + movingPiece.getNotationSymbol();
                 }
                 else {
-                    movingPiece.updatePosition(destinationRow, destinationCol, moveCount);
+                    movingPiece.updatePosition(destination.getRow(), destination.getCol(), moveCount);
                 }
 
-                positions[destinationRow][destinationCol] = movingPiece;
-                positions[originRow][originCol] = null;
+                boardGrid[destination.getRow()][destination.getCol()] = movingPiece;
+                boardGrid[origin.getRow()][origin.getCol()] = null;
                 moveCount++;
-                lastOriginRow = originRow;
-                lastOriginCol = originCol;
-                lastDestinationRow = destinationRow;
-                lastDestinationCol = destinationCol;
+
+                lastPlayOrigin.setPosition(origin.getRow(), origin.getCol());
+                lastPlayDestination.setPosition(destination.getRow(), destination.getCol());
 
                 if(movingPiece.isCheckingKing){
                     extraNotation += "+";
                 }
 
-                if(destination instanceof King){
+                if(pieceDestination instanceof King){
                     latestPlays.addFirst(new NotationEntry(notation + extraNotation + "#", movingPiece.getColor(), movingPiece.toString()));
                     if(latestPlays.size() > 8){
                         latestPlays.removeLast();
@@ -174,10 +174,10 @@ public class Board {
                     throw new CheckmateException(movingPiece.getColor().toString());
                 }
 
-                for(Piece[] row : positions){
+                for(Piece[] row : boardGrid){
                     for(Piece piece : row){
                         if(piece != null){
-                            piece.calculatePermittedMoves();
+                            piece.calculateValidMoves();
                         }
                     }
                 }
@@ -195,7 +195,6 @@ public class Board {
                     throw new InvalidMoveException(input, "Piece in " + matcher.group(1) + matcher.group(2) + " cannot move to "
                             + matcher.group(3) + matcher.group(4) + ".");
                 }
-
             }
         }
         else {
@@ -219,16 +218,16 @@ public class Board {
             for(int j=0; j < 8; j++){
                 //if row number + col number is even, square is light
                 String tileColor;
-                if((i == lastOriginRow && j == lastOriginCol) || (i == lastDestinationRow && j == lastDestinationCol)){
+                if((i == lastPlayOrigin.getRow() && j == lastPlayOrigin.getCol()) || (i == lastPlayDestination.getRow() && j == lastPlayDestination.getCol())){
                     tileColor = ANSIColors.ANSI_YELLOW_BG;
                 }
                 else {
                     tileColor = (i+j+2) % 2 == 0 ? ANSIColors.ANSI_GREEN_BG : ANSIColors.ANSI_BROWN_BG;
                 }
 
-                if(positions[i][j] != null){
-                    String pieceColor = positions[i][j].getColor() == PieceColor.WHITE ? ANSIColors.ANSI_WHITE : ANSIColors.ANSI_BLACK;
-                    output.append(tileColor).append(" ").append(pieceColor).append(positions[i][j].toString()).append(" ").append(ANSIColors.ANSI_RESET);
+                if(boardGrid[i][j] != null){
+                    String pieceColor = boardGrid[i][j].getColor() == PieceColor.WHITE ? ANSIColors.ANSI_WHITE : ANSIColors.ANSI_BLACK;
+                    output.append(tileColor).append(" ").append(pieceColor).append(boardGrid[i][j].toString()).append(" ").append(ANSIColors.ANSI_RESET);
                 }
                 else {
                     output.append(tileColor).append("   ").append(ANSIColors.ANSI_RESET);

@@ -9,11 +9,11 @@ public class Pawn extends Piece {
     }
 
     public boolean isMovePromotion(int destinationRow, int destinationCol){
-        if(permittedMoves[destinationRow][destinationCol]){
-            if(pieceColor == PieceColor.WHITE && currentRow == 6 && destinationRow == 7){
+        if(validMoves[destinationRow][destinationCol]){
+            if(color == PieceColor.WHITE && position.getRow() == 6 && destinationRow == 7){
                 return true;
             }
-            else if(pieceColor == PieceColor.BLACK && currentRow == 1 && destinationRow == 0){
+            else if(color == PieceColor.BLACK && position.getRow() == 1 && destinationRow == 0){
                 return true;
             }
         }
@@ -21,13 +21,13 @@ public class Pawn extends Piece {
     }
 
     public boolean isMoveEnPassant(int destinationRow, int destinationCol){
-        int direction = pieceColor == PieceColor.WHITE ? -1 : 1 ;
-        Piece enPassantCapture = board.getPieceByPosition(destinationRow + direction, destinationCol);
+        int direction = color == PieceColor.WHITE ? -1 : 1 ;
+        Piece enPassantCapture = board.getPiece(destinationRow + direction, destinationCol);
 
-        if(permittedMoves[destinationRow][destinationCol] == true &&
-                board.getPieceByPosition(destinationRow, destinationCol) == null &&
+        if(validMoves[destinationRow][destinationCol] == true &&
+                board.getPiece(destinationRow, destinationCol) == null &&
                 enPassantCapture instanceof Pawn &&
-                enPassantCapture.getColor() != pieceColor &&
+                enPassantCapture.getColor() != color &&
                 enPassantCapture.getMoveCount() == 1 &&
                 enPassantCapture.getLastMove() == board.getMoveCount()){
             return true;
@@ -35,33 +35,33 @@ public class Pawn extends Piece {
         return false;
     }
 
-    public void calculatePermittedMoves(){
+    public void calculateValidMoves(){
         //resetting status variables
         isCheckingKing = false;
-        permittedMoves = new boolean[8][8];
+        validMoves = new boolean[8][8];
 
         //two square move
         if(moveCount == 0){
             //direction is different for white and black
-            int i = pieceColor == PieceColor.WHITE ? 2 : -2;
-            if(board.getPieceByPosition(currentRow + i, currentCol) == null){
-                permittedMoves[currentRow + i][currentCol] = true;
+            int i = color == PieceColor.WHITE ? 2 : -2;
+            if(board.getPiece(position.getRow() + i, position.getCol()) == null){
+                validMoves[position.getRow() + i][position.getCol()] = true;
             }
         }
 
         //direction is different for white and black
-        int i = pieceColor == PieceColor.WHITE ? 1 : -1;
+        int i = color == PieceColor.WHITE ? 1 : -1;
         //one square movement
-        if((currentRow + i < 8) && (currentRow + i >= 0) && (board.getPieceByPosition(currentRow + i, currentCol) == null)){
-            permittedMoves[currentRow + i][currentCol] = true;
+        if((position.getRow() + i < 8) && (position.getRow() + i >= 0) && (board.getPiece(position.getRow() + i, position.getCol()) == null)){
+            validMoves[position.getRow() + i][position.getCol()] = true;
         }
         //regular capture
-        if((currentRow + i < 8) && (currentRow + i >= 0)){
+        if((position.getRow() + i < 8) && (position.getRow() + i >= 0)){
             for(int j : new int[]{1, -1}){
-                if((currentCol + j < 8) && (currentCol + j >= 0)){
-                    Piece piece = board.getPieceByPosition(currentRow + i, currentCol + j);
-                    if(piece != null && piece.getColor() != pieceColor){
-                        permittedMoves[currentRow + i][currentCol + j] = true;
+                if((position.getCol() + j < 8) && (position.getCol() + j >= 0)){
+                    Piece piece = board.getPiece(position.getRow() + i, position.getCol() + j);
+                    if(piece != null && piece.getColor() != color){
+                        validMoves[position.getRow() + i][position.getCol() + j] = true;
                         if(piece instanceof King){
                             isCheckingKing = true;
                         }
@@ -70,14 +70,14 @@ public class Pawn extends Piece {
             }
         }
         //en passant
-        if((getColor() == PieceColor.WHITE && currentRow == 4) || (getColor() == PieceColor.BLACK && currentRow == 3)){
+        if((getColor() == PieceColor.WHITE && position.getRow() == 4) || (getColor() == PieceColor.BLACK && position.getRow() == 3)){
             for(int j : new int[]{1, -1}){
-                if((currentCol + j < 8) && (currentCol + j >= 0)){
-                    Piece piece = board.getPieceByPosition(currentRow, currentCol + j);
-                    if(piece instanceof Pawn && piece.getColor() != pieceColor && piece.getMoveCount() == 1 &&
+                if((position.getCol() + j < 8) && (position.getCol() + j >= 0)){
+                    Piece piece = board.getPiece(position.getRow(), position.getCol() + j);
+                    if(piece instanceof Pawn && piece.getColor() != color && piece.getMoveCount() == 1 &&
                             piece.getLastMove() == board.getMoveCount() &&
-                            board.getPieceByPosition(currentRow + i, currentCol + j) == null){
-                        permittedMoves[currentRow + i][currentCol + j] = true;
+                            board.getPiece(position.getRow() + i, position.getCol() + j) == null){
+                        validMoves[position.getRow() + i][position.getCol() + j] = true;
                     }
                 }
             }

@@ -38,7 +38,7 @@ public class Match {
 //
 //    }
 
-//    public static void playPVEMatch(PieceColor pieceColor){
+//    public static void playPVEMatch(PieceColor color){
 //        //
 //    }
 }

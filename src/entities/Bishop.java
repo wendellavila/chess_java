@@ -8,23 +8,23 @@ public class Bishop extends Piece {
         super(pieceColor, initialRow, initialCol, board, '♝', "B");
     }
 
-    public void calculatePermittedMoves(){
+    public void calculateValidMoves(){
         //resetting status variables
         isCheckingKing = false;
-        permittedMoves = new boolean[8][8];
+        validMoves = new boolean[8][8];
 
         //diagonals
         int[][] directions = {{1,1}, {1,-1}, {-1,1}, {-1, -1}};
         for(int[] direction : directions){
             for(int i = 1; i < 8; i++){
-                if((currentRow + (i * direction[0]) < 8) && (currentRow + (i * direction[0]) >= 0) && (currentCol + (i * direction[1]) < 8) && (currentCol + (i * direction[1]) >= 0)){
-                    Piece piece = board.getPieceByPosition(currentRow + (i * direction[0]), currentCol + (i * direction[1]));
+                if((position.getRow() + (i * direction[0]) < 8) && (position.getRow() + (i * direction[0]) >= 0) && (position.getCol() + (i * direction[1]) < 8) && (position.getCol() + (i * direction[1]) >= 0)){
+                    Piece piece = board.getPiece(position.getRow() + (i * direction[0]), position.getCol() + (i * direction[1]));
                     if(piece == null){
-                        permittedMoves[currentRow + (i * direction[0])][currentCol + (i * direction[1])] = true;
+                        validMoves[position.getRow() + (i * direction[0])][position.getCol() + (i * direction[1])] = true;
                     }
                     else {
-                        if(piece.getColor() != pieceColor){
-                            permittedMoves[currentRow + (i * direction[0])][currentCol + (i * direction[1])] = true;
+                        if(piece.getColor() != color){
+                            validMoves[position.getRow() + (i * direction[0])][position.getCol() + (i * direction[1])] = true;
                             if(piece instanceof King){
                                 isCheckingKing = true;
                             }

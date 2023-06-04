@@ -19,7 +19,7 @@ public class Board {
     private String capturedFromWhite = "";
     private String capturedFromBlack = "";
 
-    private final LinkedList<NotationEntry> latestPlays;
+    private final LinkedList<NotationEntry> latestPlays = new LinkedList<>();
 
     //last move coordinates used in toString()
     private final Position lastPlayOrigin = new Position();
@@ -30,38 +30,37 @@ public class Board {
 
     public Board(){
 
-        boardGrid[0][0] = new Rook(PieceColor.WHITE, 0, 0, this);
-        boardGrid[0][1] = new Knight(PieceColor.WHITE, 0, 1, this);
-        boardGrid[0][2] = new Bishop(PieceColor.WHITE, 0, 2, this);
-        boardGrid[0][3] = new King(PieceColor.WHITE, 0, 3, this);
-        boardGrid[0][4] = new Queen(PieceColor.WHITE, 0, 4, this);
-        boardGrid[0][5] = new Bishop(PieceColor.WHITE, 0, 5, this);
-        boardGrid[0][6] = new Knight(PieceColor.WHITE, 0, 6, this);
-        boardGrid[0][7] = new Rook(PieceColor.WHITE, 0, 7, this);
+        boardGrid[0][0] = new Rook(PieceColor.WHITE, new Position(0,0), this);
+        boardGrid[0][1] = new Knight(PieceColor.WHITE, new Position(0,1), this);
+        boardGrid[0][2] = new Bishop(PieceColor.WHITE, new Position(0,2), this);
+        boardGrid[0][3] = new King(PieceColor.WHITE, new Position(0,3), this);
+        boardGrid[0][4] = new Queen(PieceColor.WHITE, new Position(0,4), this);
+        boardGrid[0][5] = new Bishop(PieceColor.WHITE, new Position(0,5), this);
+        boardGrid[0][6] = new Knight(PieceColor.WHITE, new Position(0,6), this);
+        boardGrid[0][7] = new Rook(PieceColor.WHITE, new Position(0,7), this);
 
         for(int j=0; j < 8; j++){
-            boardGrid[1][j] = new Pawn(PieceColor.WHITE, 1, j, this);
+            boardGrid[1][j] = new Pawn(PieceColor.WHITE, new Position(1,j), this);
             for (int i = 2; i < 6; i++){
                 boardGrid[i][j] = null;
             }
-            boardGrid[6][j] = new Pawn(PieceColor.BLACK, 6, j, this);
+            boardGrid[6][j] = new Pawn(PieceColor.BLACK, new Position(6,j), this);
         }
 
-        boardGrid[7][0] = new Rook(PieceColor.BLACK, 7, 0, this);
-        boardGrid[7][1] = new Knight(PieceColor.BLACK, 7, 1, this);
-        boardGrid[7][2] = new Bishop(PieceColor.BLACK, 7, 2, this);
-        boardGrid[7][3] = new King(PieceColor.BLACK, 7, 3, this);
-        boardGrid[7][4] = new Queen(PieceColor.BLACK, 7, 4, this);
-        boardGrid[7][5] = new Bishop(PieceColor.BLACK, 7, 5, this);
-        boardGrid[7][6] = new Knight(PieceColor.BLACK, 7, 6, this);
-        boardGrid[7][7] = new Rook(PieceColor.BLACK, 7, 7, this);
+        boardGrid[7][0] = new Rook(PieceColor.BLACK, new Position(7,0), this);
+        boardGrid[7][1] = new Knight(PieceColor.BLACK, new Position(7,1), this);
+        boardGrid[7][2] = new Bishop(PieceColor.BLACK, new Position(7,2), this);
+        boardGrid[7][3] = new King(PieceColor.BLACK, new Position(7,3), this);
+        boardGrid[7][4] = new Queen(PieceColor.BLACK, new Position(7,4), this);
+        boardGrid[7][5] = new Bishop(PieceColor.BLACK, new Position(7,5), this);
+        boardGrid[7][6] = new Knight(PieceColor.BLACK, new Position(7,6), this);
+        boardGrid[7][7] = new Rook(PieceColor.BLACK, new Position(7,7), this);
 
         for(int i : new int[]{0, 1, 6, 7}){
             for(int j = 0; j < 8; j++){
                 boardGrid[i][j].calculateValidMoves();
             }
         }
-        latestPlays = new LinkedList<>();
     }
 
     public Piece getPiece(int row, int col){
@@ -74,10 +73,12 @@ public class Board {
 
     public void movePieces(String input) throws InvalidNotationException, InvalidMoveException, CheckmateException {
 
-        Position origin = new Position(), destination = new Position();
         Matcher matcher = inputPattern.matcher(input);
 
         if(matcher.matches()) {
+            Position origin = new Position();
+            Position destination = new Position();
+
             origin.setRow(Integer.parseInt(matcher.group(2)) - 1);
             destination.setRow(Integer.parseInt(matcher.group(4)) - 1);
             //converting letters a-h to integers 0-7
@@ -93,7 +94,7 @@ public class Board {
             if(movingPiece != null && movingPiece.isMoveValid(destination.getRow(), destination.getCol())){
 
                 Piece pieceDestination = boardGrid[destination.getRow()][destination.getCol()];
-                
+
                 String notation;
                 String captureNotation = "";
                 String extraNotation = "";
@@ -114,13 +115,13 @@ public class Board {
                     if(movingPiece instanceof Pawn && ((Pawn) movingPiece).isMoveEnPassant(destination.getRow(), destination.getCol())){
                         //removing enemy pawn after move
                         int direction = movingPiece.getColor() == PieceColor.WHITE ? -1 : 1;
-                        Piece enPassantCapture = boardGrid[destination.getRow() + direction][destination.getCol()];
+                        Piece enPassantTarget = boardGrid[destination.getRow() + direction][destination.getCol()];
 
-                        if(enPassantCapture.getColor() == PieceColor.WHITE){
-                            capturedFromWhite += enPassantCapture.toString();
+                        if(enPassantTarget.getColor() == PieceColor.WHITE){
+                            capturedFromWhite += enPassantTarget.toString();
                         }
                         else {
-                            capturedFromBlack += enPassantCapture.toString();
+                            capturedFromBlack += enPassantTarget.toString();
                         }
 
                         boardGrid[destination.getRow() + direction][destination.getCol()] = null;

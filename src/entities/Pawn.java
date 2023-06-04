@@ -4,8 +4,8 @@ import entities.enums.PieceColor;
 
 public class Pawn extends Piece {
 
-    public Pawn(PieceColor pieceColor, int initialRow, int initialCol, Board board){
-        super(pieceColor, initialRow, initialCol, board, '♟', "");
+    public Pawn(PieceColor color, Position position, Board board){
+        super(color, position, board, '♟', "");
     }
 
     public boolean isMovePromotion(int destinationRow, int destinationCol){

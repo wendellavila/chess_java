@@ -4,8 +4,8 @@ import entities.enums.PieceColor;
 
 public class King extends Piece {
 
-    public King(PieceColor pieceColor, int initialRow, int initialCol, Board board){
-        super(pieceColor, initialRow, initialCol, board, '♚', "K");
+    public King(PieceColor color, Position position, Board board){
+        super(color, position, board, '♚', "K");
     }
 
     public boolean isMoveCastling(int destinationRow, int destinationCol){
@@ -68,7 +68,7 @@ public class King extends Piece {
                 Piece rookPosition = destinationCol == 1 ? board.getPiece(position.getRow(), 0) :
                         board.getPiece(position.getRow(), 7);
 
-                boolean hasNonNull = false;
+                boolean isPieceBetween = false;
 
                 if(rookPosition instanceof Rook &&
                         rookPosition.getColor() == color &&
@@ -77,11 +77,11 @@ public class King extends Piece {
                     int max = destinationCol < position.getCol() ? position.getCol() : destinationCol + 1;
                     for(int j = min; j < max; j++){
                         if(board.getPiece(position.getRow(), j) != null){
-                            hasNonNull = true;
+                            isPieceBetween = true;
                             break;
                         }
                     }
-                    validMoves[position.getRow()][destinationCol] = !hasNonNull;
+                    validMoves[position.getRow()][destinationCol] = !isPieceBetween;
                 }
             }
         }

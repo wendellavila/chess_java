@@ -4,12 +4,12 @@ import entities.enums.PieceColor;
 
 public class Queen extends Piece {
 
-    public Queen(PieceColor pieceColor, int initialRow, int initialCol, Board board){
-        super(pieceColor, initialRow, initialCol, board, '♛', "Q");
+    public Queen(PieceColor color, Position position, Board board){
+        super(color, position, board, '♛', "Q");
     }
 
-    public Queen(PieceColor pieceColor, int initialRow, int initialCol, Board board, int moveCount, int lastMoved){
-        super(pieceColor, initialRow, initialCol, board, '♛', "Q", moveCount, lastMoved);
+    public Queen(PieceColor color, int row, int col, Board board, int moveCount, int lastMoved){
+        super(color, row, col, board, '♛', "Q", moveCount, lastMoved);
     }
 
     public void calculateValidMoves(){

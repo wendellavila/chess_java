@@ -4,8 +4,8 @@ import entities.enums.PieceColor;
 
 public class Rook extends Piece {
 
-    public Rook(PieceColor pieceColor, int initialRow, int initialCol, Board board){
-        super(pieceColor, initialRow, initialCol, board, '♜', "R");
+    public Rook(PieceColor color, Position position, Board board){
+        super(color, position, board, '♜', "R");
     }
 
     public void calculateValidMoves(){

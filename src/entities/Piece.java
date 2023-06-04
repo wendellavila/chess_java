@@ -14,9 +14,9 @@ public abstract class Piece {
     protected int lastMoved;
     protected boolean isCheckingKing;
 
-    public Piece(PieceColor color, int row, int col, Board board, char icon, String notationSymbol){
+    public Piece(PieceColor color, Position position, Board board, char icon, String notationSymbol){
         this.color = color;
-        this.position = new Position(row, col);
+        this.position = position;
         this.icon = icon;
         this.board = board;
         this.notationSymbol = notationSymbol;

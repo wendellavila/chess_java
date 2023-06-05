@@ -6,6 +6,7 @@ import entities.exceptions.CheckmateException;
 import entities.exceptions.InvalidMoveException;
 import entities.exceptions.InvalidNotationException;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
@@ -20,6 +21,7 @@ public class Board {
     private String capturedFromBlack = "";
 
     private final LinkedList<NotationEntry> latestPlays = new LinkedList<>();
+    private final ArrayList<String> inputHistory = new ArrayList<>();
 
     //last move coordinates used in toString()
     private final Position lastPlayOrigin = new Position();
@@ -69,6 +71,10 @@ public class Board {
 
     public int getMoveCount(){
         return moveCount;
+    }
+
+    public ArrayList<String> getInputHistory(){
+        return inputHistory;
     }
 
     public void movePieces(String input) throws InvalidNotationException, InvalidMoveException, CheckmateException {
@@ -162,6 +168,7 @@ public class Board {
 
                 lastPlayOrigin.setPosition(origin.getRow(), origin.getCol());
                 lastPlayDestination.setPosition(destination.getRow(), destination.getCol());
+                inputHistory.add(input);
 
                 if(movingPiece.isCheckingKing){
                     extraNotation += "+";

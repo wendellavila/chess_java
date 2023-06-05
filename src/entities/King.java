@@ -8,22 +8,22 @@ public class King extends Piece {
         super(color, position, board, '♚', "K");
     }
 
-    public boolean isMoveCastling(int destinationRow, int destinationCol){
-        if(moveCount == 0 && destinationRow == position.getRow()){
+    public boolean isMoveCastling(int row, int col){
+        if(moveCount == 0 && row == position.getRow()){
 
             Piece rookPosition = null;
-            if(destinationCol == 1){
+            if(col == 1){
                 rookPosition = board.getPiece(position.getRow(), 0);
             }
-            else if(destinationCol == 6){
+            else if(col == 6){
                 rookPosition = board.getPiece(position.getRow(), 7);
             }
 
             if(rookPosition instanceof Rook &&
                     rookPosition.getColor() == color &&
                     rookPosition.getMoveCount() == 0){
-                int min = destinationCol < position.getCol() ? destinationCol : position.getCol() + 1;
-                int max = destinationCol < position.getCol() ? position.getCol() : destinationCol + 1;
+                int min = col < position.getCol() ? col : position.getCol() + 1;
+                int max = col < position.getCol() ? position.getCol() : col + 1;
                 for(int j = min; j < max; j++){
                     if(board.getPiece(position.getRow(), j) != null){
                         return false;

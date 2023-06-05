@@ -8,24 +8,24 @@ public class Pawn extends Piece {
         super(color, position, board, '♟', "");
     }
 
-    public boolean isMovePromotion(int destinationRow, int destinationCol){
-        if(validMoves[destinationRow][destinationCol]){
-            if(color == PieceColor.WHITE && position.getRow() == 6 && destinationRow == 7){
+    public boolean isMovePromotion(int row, int col){
+        if(validMoves[row][col]){
+            if(color == PieceColor.WHITE && position.getRow() == 6 && row == 7){
                 return true;
             }
-            else if(color == PieceColor.BLACK && position.getRow() == 1 && destinationRow == 0){
+            else if(color == PieceColor.BLACK && position.getRow() == 1 && row == 0){
                 return true;
             }
         }
         return false;
     }
 
-    public boolean isMoveEnPassant(int destinationRow, int destinationCol){
+    public boolean isMoveEnPassant(int row, int col){
         int direction = color == PieceColor.WHITE ? -1 : 1 ;
-        Piece enPassantCapture = board.getPiece(destinationRow + direction, destinationCol);
+        Piece enPassantCapture = board.getPiece(row + direction, col);
 
-        if(validMoves[destinationRow][destinationCol] == true &&
-                board.getPiece(destinationRow, destinationCol) == null &&
+        if(validMoves[row][col] == true &&
+                board.getPiece(row, col) == null &&
                 enPassantCapture instanceof Pawn &&
                 enPassantCapture.getColor() != color &&
                 enPassantCapture.getMoveCount() == 1 &&

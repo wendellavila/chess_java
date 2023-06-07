@@ -7,7 +7,7 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Program {
-    public static void main(String[] args) {
+    public static void main(String[] args){
 
         try(Scanner sc = new Scanner(System.in)){
 
@@ -22,22 +22,15 @@ public class Program {
 
                 try {
                     answer = sc.nextInt();
-                    switch (answer) {
-                        case 1:
-                            inputHistory = Match.playPVPMatch(sc);
-                            break;
-                        case 2:
-                            Match.replayMatch(inputHistory);
-                            break;
-                        case 3:
-                            break;
-                        default:
-                            System.out.println("Invalid input.");
-                            break;
+                    switch(answer){
+                        case 1 -> inputHistory = Match.playPVPMatch(sc);
+                        case 2 -> Match.replayMatch(inputHistory);
+                        case 3 -> {}
+                        default -> throw new InputMismatchException("Invalid input.");
                     }
                 }
                 catch (InputMismatchException e){
-                    System.out.println("Invalid input.");
+                    System.out.println(e.getMessage());
                     //consuming newline
                     sc.nextLine();
                 }

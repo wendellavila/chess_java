@@ -1,10 +1,10 @@
 package entities.exceptions;
 
-import entities.utils.ANSIColors;
+import entities.utils.ANSICodes;
 
 public class InvalidMoveException extends Exception {
 
     public InvalidMoveException(String invalidMove, String message){
-        super(ANSIColors.ANSI_RED + invalidMove + ": Invalid move.\n" + ANSIColors.ANSI_YELLOW + message + ANSIColors.ANSI_RESET);
+        super(ANSICodes.ANSI_RED + invalidMove + ": Invalid move.\n" + ANSICodes.ANSI_YELLOW + message + ANSICodes.ANSI_RESET);
     }
 }

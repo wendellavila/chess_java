@@ -1,9 +1,9 @@
 package entities.exceptions;
 
-import entities.utils.ANSIColors;
+import entities.utils.ANSICodes;
 
 public class CheckmateException extends Exception {
     public CheckmateException(String winner){
-        super(ANSIColors.ANSI_GREEN + "Checkmate! - " + winner + " wins!" + ANSIColors.ANSI_RESET);
+        super(ANSICodes.ANSI_GREEN + "Checkmate! - " + winner + " wins!" + ANSICodes.ANSI_RESET);
     }
 }

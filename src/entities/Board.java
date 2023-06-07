@@ -1,16 +1,16 @@
 package entities;
 
 import entities.enums.PieceColor;
-import entities.utils.ANSIColors;
 import entities.exceptions.CheckmateException;
 import entities.exceptions.InvalidMoveException;
 import entities.exceptions.InvalidNotationException;
+import entities.utils.ANSICodes;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.InputMismatchException;
 import java.util.LinkedList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Scanner;
 
 public class Board {
 
@@ -27,10 +27,9 @@ public class Board {
     private final Position lastPlayOrigin = new Position();
     private final Position lastPlayDestination = new Position();
 
-    //regex used by movePieces
-    private static final Pattern inputPattern = Pattern.compile("([a-zA-Z])(\\d)\\s?-?([a-zA-Z])(\\d)");
+    private final Scanner sc;
 
-    public Board(){
+    public Board(Scanner sc){
 
         boardGrid[0][0] = new Rook(PieceColor.WHITE, new Position(0,0), this);
         boardGrid[0][1] = new Knight(PieceColor.WHITE, new Position(0,1), this);
@@ -60,9 +59,13 @@ public class Board {
 
         for(int i : new int[]{0, 1, 6, 7}){
             for(int j = 0; j < 8; j++){
-                boardGrid[i][j].calculateValidMoves();
+                if(boardGrid[i][j] != null){
+                    boardGrid[i][j].calculateValidMoves();
+                }
+
             }
         }
+        this.sc = sc;
     }
 
     public Piece getPiece(int row, int col){
@@ -77,136 +80,176 @@ public class Board {
         return inputHistory;
     }
 
-    public void movePieces(String input) throws InvalidNotationException, InvalidMoveException, CheckmateException {
-
-        Matcher matcher = inputPattern.matcher(input);
-
-        if(matcher.matches()) {
-            Position origin = new Position();
-            Position destination = new Position();
-
-            origin.setRow(Integer.parseInt(matcher.group(2)) - 1);
-            destination.setRow(Integer.parseInt(matcher.group(4)) - 1);
-            //converting letters a-h to integers 0-7
-            origin.setCol((int) matcher.group(1).toLowerCase().charAt(0) - (int)'a');
-            destination.setCol((int) matcher.group(3).toLowerCase().charAt(0) - (int)'a');
-
-            if(origin.getRow() < 0 || origin.getRow() > 7 || destination.getRow() < 0 || destination.getRow() > 7 ||
-                    origin.getCol() < 0 || origin.getCol() > 7 || destination.getCol() < 0 || destination.getCol() > 7){
-                throw new InvalidNotationException(input);
+    public Piece getPromotionPiece(Piece movingPiece, Position destination, String notation){
+        notation = notation.toUpperCase();
+        switch(notation){
+            case "Q" -> {
+                return new Queen(movingPiece.getColor(), destination.getRow(), destination.getCol(), this,
+                        movingPiece.getMoveCount() + 1, moveCount);
             }
+            case "R" -> {
+                return new Rook(movingPiece.getColor(), destination.getRow(), destination.getCol(), this,
+                        movingPiece.getMoveCount() + 1, moveCount);
+            }
+            case "B" -> {
+                return new Bishop(movingPiece.getColor(), destination.getRow(), destination.getCol(), this,
+                        movingPiece.getMoveCount() + 1, moveCount);
+            }
+            case "N" -> {
+                return new Knight(movingPiece.getColor(), destination.getRow(), destination.getCol(), this,
+                        movingPiece.getMoveCount() + 1, moveCount);
+            }
+            default -> {
+                return null;
+            }
+        }
+    }
 
-            Piece movingPiece = boardGrid[origin.getRow()][origin.getCol()];
-            if(movingPiece != null && movingPiece.isMoveValid(destination.getRow(), destination.getCol())){
+    public void movePieces(Position origin, Position destination, String promoteTo) throws InvalidNotationException, InvalidMoveException, CheckmateException {
 
-                Piece pieceDestination = boardGrid[destination.getRow()][destination.getCol()];
+        Piece movingPiece = boardGrid[origin.getRow()][origin.getCol()];
+        if(movingPiece != null && movingPiece.isMoveValid(destination.getRow(), destination.getCol())){
 
-                String notation;
-                String captureNotation = "";
-                String extraNotation = "";
+            Piece pieceDestination = boardGrid[destination.getRow()][destination.getCol()];
 
-                //regular capture
-                if (pieceDestination != null) {
-                    if(pieceDestination.getColor() == PieceColor.WHITE){
-                        capturedFromWhite += pieceDestination.toString();
+            String notation;
+            String captureNotation = "";
+            String extraNotation = "";
+
+            //regular capture
+            if(pieceDestination != null){
+                if(pieceDestination.getColor() == PieceColor.WHITE){
+                    capturedFromWhite += pieceDestination.toString();
+                }
+                else {
+                    capturedFromBlack += pieceDestination.toString();
+                }
+                captureNotation = "x";
+            }
+            //move to empty or en passant or castling
+            else {
+                //move to empty: no extra action needed
+                //en passant
+                if(movingPiece instanceof Pawn && ((Pawn) movingPiece).isMoveEnPassant(destination.getRow(), destination.getCol())){
+                    //removing enemy pawn after move
+                    int direction = movingPiece.getColor() == PieceColor.WHITE ? -1 : 1;
+                    Piece enPassantTarget = boardGrid[destination.getRow() + direction][destination.getCol()];
+
+                    if(enPassantTarget.getColor() == PieceColor.WHITE){
+                        capturedFromWhite += enPassantTarget.toString();
                     }
                     else {
-                        capturedFromBlack += pieceDestination.toString();
+                        capturedFromBlack += enPassantTarget.toString();
                     }
-                    captureNotation = "x";
+
+                    boardGrid[destination.getRow() + direction][destination.getCol()] = null;
+                    extraNotation = " e.p.";
                 }
-                //move to empty or castling or en passant
+                //castling
+                else if(movingPiece instanceof King && ((King) movingPiece).isMoveCastling(destination.getRow(), destination.getCol())){
+                    //moving rook from left to right of king after king moved
+                    if(boardGrid[destination.getRow()][destination.getCol()-1] instanceof Rook){
+                        boardGrid[destination.getRow()][destination.getCol()+1] = boardGrid[destination.getRow()][destination.getCol()-1];
+                        boardGrid[destination.getRow()][destination.getCol()-1] = null;
+                        extraNotation = " (O-O-O)";
+                    }
+                    //moving rook from right to left of king after king moved
+                    else {
+                        boardGrid[destination.getRow()][destination.getCol()-1] = boardGrid[destination.getRow()][destination.getCol()+1];
+                        boardGrid[destination.getRow()][destination.getCol()+1] = null;
+                        extraNotation = " (O-O)";
+                    }
+                }
+            }
+
+            notation = movingPiece.getNotationSymbol() + origin.getNotation() + captureNotation +
+                    destination.getNotation();
+
+            // pawn promotion
+            if(movingPiece instanceof Pawn && ((Pawn) movingPiece).isMovePromotion(destination.getRow(), destination.getCol())){
+                //trying to get from input capture
+                if(promoteTo != null){
+                    movingPiece = getPromotionPiece(movingPiece, destination, promoteTo);
+                }
+                //if not available, ask user
                 else {
-                    //en passant
-                    if(movingPiece instanceof Pawn && ((Pawn) movingPiece).isMoveEnPassant(destination.getRow(), destination.getCol())){
-                        //removing enemy pawn after move
-                        int direction = movingPiece.getColor() == PieceColor.WHITE ? -1 : 1;
-                        Piece enPassantTarget = boardGrid[destination.getRow() + direction][destination.getCol()];
+                    Piece promotionFromAnswer = null;
 
-                        if(enPassantTarget.getColor() == PieceColor.WHITE){
-                            capturedFromWhite += enPassantTarget.toString();
-                        }
-                        else {
-                            capturedFromBlack += enPassantTarget.toString();
-                        }
+                    System.out.println("Pawn promotion: Choose between (Q)ueen, (R)ook, (B)ishop, K(N)ight.");
+                    while(promotionFromAnswer == null){
+                        System.out.print("Promote to (Q/R/B/N): ");
+                        try {
+                            promotionFromAnswer = getPromotionPiece(movingPiece, destination, sc.nextLine().substring(0,1));
 
-                        boardGrid[destination.getRow() + direction][destination.getCol()] = null;
-                        extraNotation = " e.p.";
-                    }
-                    //castling
-                    else if(movingPiece instanceof King && ((King) movingPiece).isMoveCastling(destination.getRow(), destination.getCol())){
-                        //moving rook from left to right of king after king moved
-                        if(boardGrid[destination.getRow()][destination.getCol()-1] instanceof Rook){
-                            boardGrid[destination.getRow()][destination.getCol()+1] = boardGrid[destination.getRow()][destination.getCol()-1];
-                            boardGrid[destination.getRow()][destination.getCol()-1] = null;
-                            extraNotation = " (O-O-O)";
+                            if(promotionFromAnswer == null){
+                                throw new InputMismatchException("Invalid input.");
+                            }
+                            else {
+                                movingPiece = promotionFromAnswer;
+                                promoteTo = movingPiece.getNotationSymbol();
+                            }
                         }
-                        //moving rook from right to left of king after king moved
-                        else {
-                            boardGrid[destination.getRow()][destination.getCol()-1] = boardGrid[destination.getRow()][destination.getCol()+1];
-                            boardGrid[destination.getRow()][destination.getCol()+1] = null;
-                            extraNotation = " (O-O)";
+                        catch (InputMismatchException e){
+                            System.out.println(e.getMessage());
                         }
                     }
                 }
+                extraNotation += "=" + movingPiece.getNotationSymbol();
+            }
+            else {
+                movingPiece.updatePosition(destination.getRow(), destination.getCol(), moveCount);
+            }
 
-                notation = movingPiece.getNotationSymbol() + matcher.group(1) + matcher.group(2) + captureNotation +
-                        matcher.group(3) + matcher.group(4);
+            boardGrid[destination.getRow()][destination.getCol()] = movingPiece;
+            boardGrid[origin.getRow()][origin.getCol()] = null;
+            moveCount++;
 
-                if(movingPiece instanceof Pawn && ((Pawn) movingPiece).isMovePromotion(destination.getRow(), destination.getCol())){
-                    movingPiece = new Queen(movingPiece.getColor(), destination.getRow(), destination.getCol(), this,
-                            movingPiece.getMoveCount() + 1, moveCount);
-                    extraNotation += "=" + movingPiece.getNotationSymbol();
-                }
-                else {
-                    movingPiece.updatePosition(destination.getRow(), destination.getCol(), moveCount);
-                }
+            lastPlayOrigin.setPosition(origin.getRow(), origin.getCol());
+            lastPlayDestination.setPosition(destination.getRow(), destination.getCol());
 
-                boardGrid[destination.getRow()][destination.getCol()] = movingPiece;
-                boardGrid[origin.getRow()][origin.getCol()] = null;
-                moveCount++;
+            if(promoteTo == null){
+                inputHistory.add(origin.getNotation() + " " + destination.getNotation());
+            }
+            else {
+                inputHistory.add(origin.getNotation() + " " + destination.getNotation() + " " + promoteTo);
+            }
 
-                lastPlayOrigin.setPosition(origin.getRow(), origin.getCol());
-                lastPlayDestination.setPosition(destination.getRow(), destination.getCol());
-                inputHistory.add(input);
-
-                if(movingPiece.isCheckingKing){
-                    extraNotation += "+";
-                }
-
-                if(pieceDestination instanceof King){
-                    latestPlays.addFirst(new NotationEntry(notation + extraNotation + "#", movingPiece.getColor(), movingPiece.toString()));
-                    if(latestPlays.size() > 8){
-                        latestPlays.removeLast();
-                    }
-                    throw new CheckmateException(movingPiece.getColor().toString());
-                }
-
-                for(Piece[] row : boardGrid){
-                    for(Piece piece : row){
-                        if(piece != null){
-                            piece.calculateValidMoves();
-                        }
-                    }
-                }
+            if(pieceDestination instanceof King){
+                extraNotation += pieceDestination.getColor() == PieceColor.WHITE ? "# (0-1)" : "# (1-0)";
 
                 latestPlays.addFirst(new NotationEntry(notation + extraNotation, movingPiece.getColor(), movingPiece.toString()));
                 if(latestPlays.size() > 8){
                     latestPlays.removeLast();
                 }
+                throw new CheckmateException(movingPiece.getColor().toString());
             }
-            else {
-                if(movingPiece == null){
-                    throw new InvalidMoveException(input, "Square " + matcher.group(1) + matcher.group(2) + " is empty.");
+
+            for(Piece[] row : boardGrid){
+                for(Piece piece : row){
+                    if(piece != null){
+                        piece.calculateValidMoves();
+                    }
                 }
-                else {
-                    throw new InvalidMoveException(input, "Piece in " + matcher.group(1) + matcher.group(2) + " cannot move to "
-                            + matcher.group(3) + matcher.group(4) + ".");
-                }
+            }
+
+            if(movingPiece.isCheckingKing){
+                notation += "+";
+            }
+
+            latestPlays.addFirst(new NotationEntry(notation + extraNotation, movingPiece.getColor(), movingPiece.toString()));
+            if(latestPlays.size() > 8){
+                latestPlays.removeLast();
             }
         }
         else {
-            throw new InvalidNotationException(input);
+            String input = origin.getNotation() + " " + destination.getNotation();
+            if(movingPiece == null){
+                throw new InvalidMoveException(input, "Square " + origin.getNotation() + " is empty.");
+            }
+            else {
+                throw new InvalidMoveException(input, "Piece in " + origin.getNotation() + " cannot move to "
+                        + destination.getNotation() + ".");
+            }
         }
     }
 
@@ -220,6 +263,11 @@ public class Board {
         Arrays.sort(temp);
         capturedFromWhite = new String(temp);
 
+        // clearing terminal
+        // https://stackoverflow.com/questions/2979383/how-to-clear-the-console-using-java
+        System.out.print(ANSICodes.ANSI_CLEAR);
+        System.out.flush();
+
         StringBuilder output = new StringBuilder("    a  b  c  d  e  f  g  h       Latest moves\n");
         for (int i = 7; i >= 0; i--){
             output.append(" ").append(i+1).append(" ");
@@ -227,18 +275,18 @@ public class Board {
                 //if row number + col number is even, square is light
                 String tileColor;
                 if((i == lastPlayOrigin.getRow() && j == lastPlayOrigin.getCol()) || (i == lastPlayDestination.getRow() && j == lastPlayDestination.getCol())){
-                    tileColor = ANSIColors.ANSI_YELLOW_BG;
+                    tileColor = ANSICodes.ANSI_YELLOW_BG;
                 }
                 else {
-                    tileColor = (i+j+2) % 2 == 0 ? ANSIColors.ANSI_GREEN_BG : ANSIColors.ANSI_BROWN_BG;
+                    tileColor = (i+j+2) % 2 == 0 ? ANSICodes.ANSI_GREEN_BG : ANSICodes.ANSI_BROWN_BG;
                 }
 
                 if(boardGrid[i][j] != null){
-                    String pieceColor = boardGrid[i][j].getColor() == PieceColor.WHITE ? ANSIColors.ANSI_WHITE : ANSIColors.ANSI_BLACK;
-                    output.append(tileColor).append(" ").append(pieceColor).append(boardGrid[i][j].toString()).append(" ").append(ANSIColors.ANSI_RESET);
+                    String pieceColor = boardGrid[i][j].getColor() == PieceColor.WHITE ? ANSICodes.ANSI_WHITE : ANSICodes.ANSI_BLACK;
+                    output.append(tileColor).append(" ").append(pieceColor).append(boardGrid[i][j].toString()).append(" ").append(ANSICodes.ANSI_RESET);
                 }
                 else {
-                    output.append(tileColor).append("   ").append(ANSIColors.ANSI_RESET);
+                    output.append(tileColor).append("   ").append(ANSICodes.ANSI_RESET);
                 }
 
             }
@@ -249,11 +297,11 @@ public class Board {
             output.append("\n");
         }
         output.append("    a  b  c  d  e  f  g  h   \n\n");
-        output.append(" ").append(ANSIColors.ANSI_GREEN_BG).append(ANSIColors.ANSI_WHITE).append("[").append(ANSIColors.ANSI_BLACK)
-                .append(capturedFromBlack).append(ANSIColors.ANSI_WHITE).append("]").append(ANSIColors.ANSI_RESET);
+        output.append(" ").append(ANSICodes.ANSI_GREEN_BG).append(ANSICodes.ANSI_WHITE).append("[").append(ANSICodes.ANSI_BLACK)
+                .append(capturedFromBlack).append(ANSICodes.ANSI_WHITE).append("]").append(ANSICodes.ANSI_RESET);
 
-        output.append(" ").append(ANSIColors.ANSI_BROWN_BG).append(ANSIColors.ANSI_BLACK).append("[").append(ANSIColors.ANSI_WHITE)
-                .append(capturedFromWhite).append(ANSIColors.ANSI_BLACK).append("]").append(ANSIColors.ANSI_RESET).append("\n");
+        output.append(" ").append(ANSICodes.ANSI_BROWN_BG).append(ANSICodes.ANSI_BLACK).append("[").append(ANSICodes.ANSI_WHITE)
+                .append(capturedFromWhite).append(ANSICodes.ANSI_BLACK).append("]").append(ANSICodes.ANSI_RESET).append("\n");
 
         return output.toString();
     }

@@ -5,19 +5,19 @@ import entities.utils.ANSICodes;
 
 public class NotationEntry {
     private final String notation;
-    private final PieceColor pieceColor;
+    private final PieceColor color;
     private final String icon;
 
-    public NotationEntry(String notation, PieceColor pieceColor, String icon) {
+    public NotationEntry(String notation, PieceColor color, String icon) {
         this.notation = notation;
-        this.pieceColor = pieceColor;
+        this.color = color;
         this.icon = icon;
     }
 
     @Override
     public String toString(){
-        final String bgColor = pieceColor == PieceColor.WHITE ? ANSICodes.ANSI_GREEN_BG : ANSICodes.ANSI_BROWN_BG;
-        final String textColor = pieceColor == PieceColor.WHITE ? ANSICodes.ANSI_WHITE : ANSICodes.ANSI_BLACK;
+        final String bgColor = color == PieceColor.WHITE ? ANSICodes.ANSI_GREEN_BG : ANSICodes.ANSI_BROWN_BG;
+        final String textColor = color == PieceColor.WHITE ? ANSICodes.ANSI_WHITE : ANSICodes.ANSI_BLACK;
 
         return bgColor + textColor + " " + icon + " " + ANSICodes.ANSI_RESET + " " + notation;
     }

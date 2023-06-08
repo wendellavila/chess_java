@@ -8,9 +8,8 @@ public enum PieceColor {
     @Override
     public String toString() {
         return switch (this) {
-            case BLACK -> "Blacks";
-            case WHITE -> "Whites";
-            default -> "";
+            case BLACK -> "Black";
+            case WHITE -> "White";
         };
     }
 }

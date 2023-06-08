@@ -1,7 +1,7 @@
 package entities;
 
 import entities.enums.PieceColor;
-import entities.exceptions.CheckmateException;
+import entities.exceptions.GameOverException;
 import entities.exceptions.InvalidMoveException;
 import entities.exceptions.InvalidNotationException;
 import entities.utils.ANSICodes;
@@ -68,6 +68,17 @@ public class Board {
         this.sc = sc;
     }
 
+    public void addToInputHistory(String input){
+        inputHistory.add(input);
+    }
+
+    public void addToLatestPlays(NotationEntry notationEntry){
+        latestPlays.addFirst(notationEntry);
+        if(latestPlays.size() > 8){
+            latestPlays.removeLast();
+        }
+    }
+
     public Piece getPiece(int row, int col){
         return boardGrid[row][col];
     }
@@ -105,7 +116,7 @@ public class Board {
         }
     }
 
-    public void movePieces(Position origin, Position destination, String promoteTo) throws InvalidNotationException, InvalidMoveException, CheckmateException {
+    public void movePieces(Position origin, Position destination, String promoteTo) throws InvalidNotationException, InvalidMoveException, GameOverException {
 
         Piece movingPiece = boardGrid[origin.getRow()][origin.getCol()];
         if(movingPiece != null && movingPiece.isMoveValid(destination)){
@@ -208,20 +219,17 @@ public class Board {
             lastPlayDestination.setPosition(destination.getRow(), destination.getCol());
 
             if(promoteTo == null){
-                inputHistory.add(origin.getNotation() + " " + destination.getNotation());
+                addToInputHistory(origin.getNotation() + " " + destination.getNotation());
             }
             else {
-                inputHistory.add(origin.getNotation() + " " + destination.getNotation() + " " + promoteTo);
+                addToInputHistory(origin.getNotation() + " " + destination.getNotation() + " " + promoteTo);
             }
 
             if(pieceDestination instanceof King){
                 extraNotation += pieceDestination.getColor() == PieceColor.WHITE ? "# (0-1)" : "# (1-0)";
 
-                latestPlays.addFirst(new NotationEntry(notation + extraNotation, movingPiece.getColor(), movingPiece.toString()));
-                if(latestPlays.size() > 8){
-                    latestPlays.removeLast();
-                }
-                throw new CheckmateException(movingPiece.getColor().toString());
+                addToLatestPlays(new NotationEntry(notation + extraNotation, movingPiece.getColor(), movingPiece.toString()));
+                throw new GameOverException("Checkmate! - " + movingPiece.getColor() + " wins!");
             }
 
             for(Piece[] row : boardGrid){
@@ -236,10 +244,7 @@ public class Board {
                 notation += "+";
             }
 
-            latestPlays.addFirst(new NotationEntry(notation + extraNotation, movingPiece.getColor(), movingPiece.toString()));
-            if(latestPlays.size() > 8){
-                latestPlays.removeLast();
-            }
+            addToLatestPlays(new NotationEntry(notation + extraNotation, movingPiece.getColor(), movingPiece.toString()));
         }
         else {
             String input = origin.getNotation() + " " + destination.getNotation();
@@ -341,8 +346,9 @@ public class Board {
         for (int i = 7; i >= 0; i--){
             output.append(" ").append(i+1).append(" ");
             for(int j=0; j < 8; j++){
-                //if row number + col number is even, square is light
+
                 String tileColor;
+                //if row number + col number is even, square is light
                 if((i == lastPlayOrigin.getRow() && j == lastPlayOrigin.getCol()) || (i == lastPlayDestination.getRow() && j == lastPlayDestination.getCol())){
                     tileColor = ANSICodes.ANSI_YELLOW_BG;
                 }

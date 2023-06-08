@@ -1,7 +1,8 @@
 package entities;
 
 //import entities.enums.PieceColor;
-import entities.exceptions.CheckmateException;
+import entities.enums.PieceColor;
+import entities.exceptions.GameOverException;
 import entities.exceptions.InvalidMoveException;
 import entities.exceptions.InvalidNotationException;
 
@@ -17,7 +18,7 @@ public class Match {
     // regex for highlighting piece's available moves
     private static final Pattern highlightPattern = Pattern.compile("tip\\s?-?([a-hA-H])(\\d)");
 
-    public static ArrayList<String> playPVPMatch(Scanner sc){
+    public static ArrayList<String> playMatch(Scanner sc){
 
         int turnCount = 1;
         Board board = new Board(sc);
@@ -27,13 +28,23 @@ public class Match {
 
         while(true){
             try {
-                String currentColor = board.getMoveCount() % 2 == 0 ? "Whites" : "Blacks";
+                PieceColor currentColor = board.getMoveCount() % 2 == 0 ? PieceColor.WHITE : PieceColor.BLACK;
+
                 System.out.println("Turn " + turnCount + " - " + currentColor + " play\nInput: ");
 
                 String input = sc.nextLine();
                 inputMatcher = inputPattern.matcher(input);
                 highlightMatcher = highlightPattern.matcher(input);
-                if(highlightMatcher.matches()){
+
+                if(input.equals("resign")){
+                    PieceColor oppositeColor = currentColor == PieceColor.WHITE ? PieceColor.BLACK : PieceColor.WHITE;
+                    board.addToInputHistory(input);
+                    board.addToLatestPlays(
+                            new NotationEntry(currentColor == PieceColor.WHITE ? "0-1" : "1-0", oppositeColor, "♚")
+                    );
+                    throw new GameOverException(currentColor + " resigns. " + oppositeColor + " wins!");
+                }
+                else if(highlightMatcher.matches()){
                     Position origin = new Position();
 
                     origin.setRow(Integer.parseInt(highlightMatcher.group(2)) - 1);
@@ -74,7 +85,7 @@ public class Match {
             catch (InvalidNotationException | InvalidMoveException e){
                 System.out.println(e.getMessage());
             }
-            catch (CheckmateException e){
+            catch (GameOverException e){
                 System.out.println(board);
                 System.out.println(e.getMessage());
                 break;
@@ -99,48 +110,49 @@ public class Match {
             return;
         }
 
-        Matcher matcher;
+        Matcher inputMatcher;
 
         for(String input : inputHistory){
 
-            matcher = inputPattern.matcher(input);
-            //only matching inputs are added to inputHistory; no need for checking.
-            matcher.matches();
+            inputMatcher = inputPattern.matcher(input);
+
             try {
-                Position origin = new Position();
-                Position destination = new Position();
-
-                origin.setRow(Integer.parseInt(matcher.group(2)) - 1);
-                destination.setRow(Integer.parseInt(matcher.group(4)) - 1);
-                //converting letters a-h to integers 0-7
-                origin.setCol((int) matcher.group(1).toLowerCase().charAt(0) - (int) 'a');
-                destination.setCol((int) matcher.group(3).toLowerCase().charAt(0) - (int) 'a');
-
-                if(matcher.groupCount() > 4 && matcher.group(5) != null && !matcher.group(5).isEmpty()){
-                    board.movePieces(origin, destination, matcher.group(5));
+                if(input.equals("resign")){
+                    PieceColor currentColor = board.getMoveCount() % 2 == 0 ? PieceColor.WHITE : PieceColor.BLACK;
+                    PieceColor oppositeColor = currentColor == PieceColor.WHITE ? PieceColor.BLACK : PieceColor.WHITE;
+                    board.addToLatestPlays(
+                            new NotationEntry(currentColor == PieceColor.WHITE ? "(0-1)" : "(1-0)", oppositeColor, "♚")
+                    );
+                    throw new GameOverException(currentColor + " resigns. " + oppositeColor + " wins!");
                 }
-                else {
-                    board.movePieces(origin, destination, null);
-                }
+                else if(inputMatcher.matches()){
 
-                System.out.println(board);
-                Thread.sleep(1500);
-            }
-            catch (InvalidNotationException | InvalidMoveException e){
+                    Position origin = new Position();
+                    Position destination = new Position();
+
+                    origin.setRow(Integer.parseInt(inputMatcher.group(2)) - 1);
+                    destination.setRow(Integer.parseInt(inputMatcher.group(4)) - 1);
+                    //converting letters a-h to integers 0-7
+                    origin.setCol((int) inputMatcher.group(1).toLowerCase().charAt(0) - (int) 'a');
+                    destination.setCol((int) inputMatcher.group(3).toLowerCase().charAt(0) - (int) 'a');
+
+                    if (inputMatcher.groupCount() > 4 && inputMatcher.group(5) != null && !inputMatcher.group(5).isEmpty()) {
+                        board.movePieces(origin, destination, inputMatcher.group(5));
+                    } else {
+                        board.movePieces(origin, destination, null);
+                    }
+                    System.out.println(board);
+                    Thread.sleep(1500);
+                }
+            } catch (InvalidNotationException | InvalidMoveException e) {
                 System.out.println(e.getMessage());
-            }
-            catch (CheckmateException e){
+            } catch (GameOverException e) {
                 System.out.println(board);
                 System.out.println(e.getMessage());
                 break;
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
     }
-
-//    public static void playPVEMatch(PieceColor color){
-//        //
-//    }
 }

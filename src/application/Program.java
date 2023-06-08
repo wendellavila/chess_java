@@ -11,7 +11,7 @@ public class Program {
 
         try(Scanner sc = new Scanner(System.in)){
 
-            ArrayList<String> inputHistory = Match.playPVPMatch(sc);
+            ArrayList<String> inputHistory = Match.playMatch(sc);
 
             int answer = 0;
             while(answer != 3){
@@ -23,7 +23,11 @@ public class Program {
                 try {
                     answer = sc.nextInt();
                     switch(answer){
-                        case 1 -> inputHistory = Match.playPVPMatch(sc);
+                        case 1 -> {
+                            //consuming newline
+                            sc.nextLine();
+                            inputHistory = Match.playMatch(sc);
+                        }
                         case 2 -> Match.replayMatch(inputHistory);
                         case 3 -> {}
                         default -> throw new InputMismatchException("Invalid input.");

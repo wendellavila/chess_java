@@ -84,19 +84,19 @@ public class Board {
         notation = notation.toUpperCase();
         switch(notation){
             case "Q" -> {
-                return new Queen(movingPiece.getColor(), destination.getRow(), destination.getCol(), this,
+                return new Queen(movingPiece.getColor(), destination, this,
                         movingPiece.getMoveCount() + 1, moveCount);
             }
             case "R" -> {
-                return new Rook(movingPiece.getColor(), destination.getRow(), destination.getCol(), this,
+                return new Rook(movingPiece.getColor(), destination, this,
                         movingPiece.getMoveCount() + 1, moveCount);
             }
             case "B" -> {
-                return new Bishop(movingPiece.getColor(), destination.getRow(), destination.getCol(), this,
+                return new Bishop(movingPiece.getColor(), destination, this,
                         movingPiece.getMoveCount() + 1, moveCount);
             }
             case "N" -> {
-                return new Knight(movingPiece.getColor(), destination.getRow(), destination.getCol(), this,
+                return new Knight(movingPiece.getColor(), destination, this,
                         movingPiece.getMoveCount() + 1, moveCount);
             }
             default -> {
@@ -108,7 +108,7 @@ public class Board {
     public void movePieces(Position origin, Position destination, String promoteTo) throws InvalidNotationException, InvalidMoveException, CheckmateException {
 
         Piece movingPiece = boardGrid[origin.getRow()][origin.getCol()];
-        if(movingPiece != null && movingPiece.isMoveValid(destination.getRow(), destination.getCol())){
+        if(movingPiece != null && movingPiece.isMoveValid(destination)){
 
             Piece pieceDestination = boardGrid[destination.getRow()][destination.getCol()];
 
@@ -253,6 +253,75 @@ public class Board {
         }
     }
 
+    public String highlightPiece(Position position){
+        Piece piece = boardGrid[position.getRow()][position.getCol()];
+        if(piece != null && piece.hasValidMoves()){
+
+            char[] temp = capturedFromBlack.toCharArray();
+            Arrays.sort(temp);
+            capturedFromBlack = new String(temp);
+            temp = capturedFromWhite.toCharArray();
+            Arrays.sort(temp);
+            capturedFromWhite = new String(temp);
+
+            // clearing terminal
+            // https://stackoverflow.com/questions/2979383/how-to-clear-the-console-using-java
+            System.out.print(ANSICodes.ANSI_CLEAR);
+            System.out.flush();
+
+            StringBuilder output = new StringBuilder("\n    a  b  c  d  e  f  g  h       Latest moves\n");
+            for (int i = 7; i >= 0; i--){
+                output.append(" ").append(i+1).append(" ");
+                for(int j=0; j < 8; j++){
+
+                    String tileColor;
+                    if(piece.isMoveValid(new Position(i, j))){
+                        tileColor = (i+j+2) % 2 == 0 ? ANSICodes.ANSI_LIGHT_BLUE_BG : ANSICodes.ANSI_BLUE_BG;
+                    }
+                    else {
+                        //if row number + col number is even, square is light
+                        if((i == lastPlayOrigin.getRow() && j == lastPlayOrigin.getCol()) || (i == lastPlayDestination.getRow() && j == lastPlayDestination.getCol())){
+                            tileColor = ANSICodes.ANSI_YELLOW_BG;
+                        }
+                        else {
+                            tileColor = (i+j+2) % 2 == 0 ? ANSICodes.ANSI_GREEN_BG : ANSICodes.ANSI_BROWN_BG;
+                        }
+                    }
+
+                    if(boardGrid[i][j] != null){
+                        String pieceColor = boardGrid[i][j].getColor() == PieceColor.WHITE ? ANSICodes.ANSI_WHITE : ANSICodes.ANSI_BLACK;
+                        output.append(tileColor).append(" ").append(pieceColor).append(boardGrid[i][j].toString()).append(" ").append(ANSICodes.ANSI_RESET);
+                    }
+                    else {
+                        output.append(tileColor).append("   ").append(ANSICodes.ANSI_RESET);
+                    }
+
+                }
+                output.append(" ").append(i+1);
+                if(latestPlays.size() > (7 - i)){
+                    output.append("    ").append(latestPlays.get(7 - i));
+                }
+                output.append("\n");
+            }
+            output.append("    a  b  c  d  e  f  g  h   \n\n");
+            output.append(" ").append(ANSICodes.ANSI_GREEN_BG).append(ANSICodes.ANSI_WHITE).append("[").append(ANSICodes.ANSI_BLACK)
+                    .append(capturedFromBlack).append(ANSICodes.ANSI_WHITE).append("]").append(ANSICodes.ANSI_RESET);
+
+            output.append(" ").append(ANSICodes.ANSI_BROWN_BG).append(ANSICodes.ANSI_BLACK).append("[").append(ANSICodes.ANSI_WHITE)
+                    .append(capturedFromWhite).append(ANSICodes.ANSI_BLACK).append("]").append(ANSICodes.ANSI_RESET).append("\n");
+
+            return output.toString();
+        }
+        else if(piece == null){
+            return ANSICodes.ANSI_RED + "tip " + position.getNotation() + ": Square "+ position.getNotation()
+                    +" is empty." + ANSICodes.ANSI_RESET;
+        }
+        else {
+            return ANSICodes.ANSI_RED + "tip " + position.getNotation() + ": Piece in "+ position.getNotation()
+                    +" has no available moves." + ANSICodes.ANSI_RESET;
+        }
+    }
+
     @Override
     public String toString(){
 
@@ -268,7 +337,7 @@ public class Board {
         System.out.print(ANSICodes.ANSI_CLEAR);
         System.out.flush();
 
-        StringBuilder output = new StringBuilder("    a  b  c  d  e  f  g  h       Latest moves\n");
+        StringBuilder output = new StringBuilder("\n    a  b  c  d  e  f  g  h       Latest moves\n");
         for (int i = 7; i >= 0; i--){
             output.append(" ").append(i+1).append(" ");
             for(int j=0; j < 8; j++){

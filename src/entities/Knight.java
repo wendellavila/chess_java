@@ -8,8 +8,8 @@ public class Knight extends Piece {
         super(color, position, board, '♞', "N");
     }
 
-    public Knight(PieceColor color, int row, int col, Board board, int moveCount, int lastMoved){
-        super(color, row, col, board, '♞', "N", moveCount, lastMoved);
+    public Knight(PieceColor color, Position position, Board board, int moveCount, int lastMoved){
+        super(color, position, board, '♞', "N", moveCount, lastMoved);
     }
 
     public void calculateValidMoves(){

@@ -22,16 +22,18 @@ public abstract class Piece {
         this.notationSymbol = notationSymbol;
         this.moveCount = 0;
         this.lastMoved = 0;
+        this.isCheckingKing = false;
     }
 
-    public Piece(PieceColor color, int row, int col, Board board, char icon, String notationSymbol, int moveCount, int lastMoved){
+    public Piece(PieceColor color, Position position, Board board, char icon, String notationSymbol, int moveCount, int lastMoved){
         this.color = color;
-        this.position = new Position(row, col);
+        this.position = position;
         this.icon = icon;
         this.board = board;
         this.notationSymbol = notationSymbol;
         this.moveCount = moveCount;
         this.lastMoved = lastMoved;
+        this.isCheckingKing = false;
     }
 
     public void updatePosition(int row, int col, int boardMoveCount){
@@ -42,8 +44,20 @@ public abstract class Piece {
 
     public abstract void calculateValidMoves();
 
-    public boolean isMoveValid(int row, int col){
-        return validMoves[row][col];
+    public boolean isMoveValid(Position position){
+        return validMoves[position.getRow()][position.getCol()];
+    }
+
+    public boolean hasValidMoves(){
+        calculateValidMoves();
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 8; j++){
+                if(validMoves[i][j]){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public PieceColor getColor(){
@@ -60,6 +74,10 @@ public abstract class Piece {
 
     public String getNotationSymbol(){
         return notationSymbol;
+    }
+
+    public Position getPosition(){
+        return position;
     }
 
     @Override

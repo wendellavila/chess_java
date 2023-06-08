@@ -8,8 +8,8 @@ public class Rook extends Piece {
         super(color, position, board, '♜', "R");
     }
 
-    public Rook(PieceColor color, int row, int col, Board board, int moveCount, int lastMoved){
-        super(color, row, col, board, '♜', "R", moveCount, lastMoved);
+    public Rook(PieceColor color, Position position, Board board, int moveCount, int lastMoved){
+        super(color, position, board, '♜', "R", moveCount, lastMoved);
     }
 
     public void calculateValidMoves(){

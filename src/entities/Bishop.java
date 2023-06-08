@@ -8,8 +8,8 @@ public class Bishop extends Piece {
         super(color, position, board, '♝', "B");
     }
 
-    public Bishop(PieceColor color, int row, int col, Board board, int moveCount, int lastMoved){
-        super(color, row, col, board, '♝', "B", moveCount, lastMoved);
+    public Bishop(PieceColor color, Position position, Board board, int moveCount, int lastMoved){
+        super(color, position, board, '♝', "B", moveCount, lastMoved);
     }
 
     public void calculateValidMoves(){

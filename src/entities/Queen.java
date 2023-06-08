@@ -8,8 +8,8 @@ public class Queen extends Piece {
         super(color, position, board, '♛', "Q");
     }
 
-    public Queen(PieceColor color, int row, int col, Board board, int moveCount, int lastMoved){
-        super(color, row, col, board, '♛', "Q", moveCount, lastMoved);
+    public Queen(PieceColor color, Position position, Board board, int moveCount, int lastMoved){
+        super(color, position, board, '♛', "Q", moveCount, lastMoved);
     }
 
     public void calculateValidMoves(){

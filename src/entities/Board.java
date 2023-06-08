@@ -20,6 +20,9 @@ public class Board {
     private String capturedFromWhite = "";
     private String capturedFromBlack = "";
 
+    private boolean whiteInCheck = false;
+    private boolean blackInCheck = false;
+
     private final LinkedList<NotationEntry> latestPlays = new LinkedList<>();
     private final ArrayList<String> inputHistory = new ArrayList<>();
 
@@ -116,10 +119,20 @@ public class Board {
         }
     }
 
+    public boolean isWhiteInCheck() {
+        return whiteInCheck;
+    }
+
+    public boolean isBlackInCheck() {
+        return blackInCheck;
+    }
+
     public void movePieces(Position origin, Position destination, String promoteTo) throws InvalidNotationException, InvalidMoveException, GameOverException {
 
         Piece movingPiece = boardGrid[origin.getRow()][origin.getCol()];
-        if(movingPiece != null && movingPiece.isMoveValid(destination)){
+        PieceColor currentColor = getMoveCount() % 2 == 0 ? PieceColor.WHITE : PieceColor.BLACK;
+
+        if(movingPiece != null && movingPiece.isMoveValid(destination) && currentColor == movingPiece.getColor()){
 
             Piece pieceDestination = boardGrid[destination.getRow()][destination.getCol()];
 
@@ -232,10 +245,20 @@ public class Board {
                 throw new GameOverException("Checkmate! - " + movingPiece.getColor() + " wins!");
             }
 
+            whiteInCheck = false;
+            blackInCheck = false;
             for(Piece[] row : boardGrid){
                 for(Piece piece : row){
                     if(piece != null){
                         piece.calculateValidMoves();
+                        if(piece.isCheckingKing){
+                            if(piece.color == PieceColor.WHITE){
+                                blackInCheck = true;
+                            }
+                            else {
+                                whiteInCheck = true;
+                            }
+                        }
                     }
                 }
             }
@@ -250,6 +273,9 @@ public class Board {
             String input = origin.getNotation() + " " + destination.getNotation();
             if(movingPiece == null){
                 throw new InvalidMoveException(input, "Square " + origin.getNotation() + " is empty.");
+            }
+            else if(currentColor != movingPiece.getColor()){
+                throw new InvalidMoveException(input, "Piece in " + origin.getNotation() + " is not yours.");
             }
             else {
                 throw new InvalidMoveException(input, "Piece in " + origin.getNotation() + " cannot move to "

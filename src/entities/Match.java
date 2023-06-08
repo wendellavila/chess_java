@@ -5,6 +5,7 @@ import entities.enums.PieceColor;
 import entities.exceptions.GameOverException;
 import entities.exceptions.InvalidMoveException;
 import entities.exceptions.InvalidNotationException;
+import entities.utils.ANSICodes;
 
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -30,7 +31,11 @@ public class Match {
             try {
                 PieceColor currentColor = board.getMoveCount() % 2 == 0 ? PieceColor.WHITE : PieceColor.BLACK;
 
-                System.out.println("Turn " + turnCount + " - " + currentColor + " play\nInput: ");
+                System.out.println("Turn " + turnCount + " - " + currentColor + " play");
+                if((currentColor == PieceColor.WHITE && board.isWhiteInCheck()) || (currentColor == PieceColor.BLACK && board.isBlackInCheck())){
+                    System.out.println(ANSICodes.ANSI_YELLOW + "Warning: Your King is in check!" + ANSICodes.ANSI_RESET);
+                }
+                System.out.print("Input: ");
 
                 String input = sc.nextLine();
                 inputMatcher = inputPattern.matcher(input);

@@ -76,10 +76,6 @@ public abstract class Piece {
         return notationSymbol;
     }
 
-    public Position getPosition(){
-        return position;
-    }
-
     @Override
     public String toString() {
         return String.valueOf(icon);

@@ -30,6 +30,7 @@ public class Match {
         while(true){
             try {
                 PieceColor currentColor = board.getMoveCount() % 2 == 0 ? PieceColor.WHITE : PieceColor.BLACK;
+                PieceColor oppositeColor = currentColor == PieceColor.WHITE ? PieceColor.BLACK : PieceColor.WHITE;
 
                 System.out.println("Turn " + turnCount + " - " + currentColor + " play");
                 if((currentColor == PieceColor.WHITE && board.isWhiteInCheck()) || (currentColor == PieceColor.BLACK && board.isBlackInCheck())){
@@ -41,8 +42,24 @@ public class Match {
                 inputMatcher = inputPattern.matcher(input);
                 highlightMatcher = highlightPattern.matcher(input);
 
-                if(input.equals("resign")){
-                    PieceColor oppositeColor = currentColor == PieceColor.WHITE ? PieceColor.BLACK : PieceColor.WHITE;
+                if(input.equals("draw")){
+                    System.out.println(currentColor + " proposed a draw.\nAccept? (y/n): ");
+                    while(true){
+                        String answer = sc.nextLine().toLowerCase();
+                        if(answer.equals("y")){
+                            board.addToLatestPlays(
+                                    new NotationEntry("½-½", PieceColor.NONE, "½")
+                            );
+                            board.addToInputHistory(input);
+                            throw new GameOverException("Draw by agreement!");
+                        }
+                        else if(answer.equals("n")){
+                            break;
+                        }
+                    }
+
+                }
+                else if(input.equals("resign")){
                     board.addToInputHistory(input);
                     board.addToLatestPlays(
                             new NotationEntry(currentColor == PieceColor.WHITE ? "0-1" : "1-0", oppositeColor, "♚")
@@ -122,7 +139,13 @@ public class Match {
             inputMatcher = inputPattern.matcher(input);
 
             try {
-                if(input.equals("resign")){
+                if(input.equals("draw")){
+                    board.addToLatestPlays(
+                        new NotationEntry("½-½", PieceColor.NONE, "½")
+                    );
+                    throw new GameOverException("Draw by agreement!");
+                }
+                else if(input.equals("resign")){
                     PieceColor currentColor = board.getMoveCount() % 2 == 0 ? PieceColor.WHITE : PieceColor.BLACK;
                     PieceColor oppositeColor = currentColor == PieceColor.WHITE ? PieceColor.BLACK : PieceColor.WHITE;
                     board.addToLatestPlays(

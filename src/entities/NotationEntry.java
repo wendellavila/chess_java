@@ -16,9 +16,13 @@ public class NotationEntry {
 
     @Override
     public String toString(){
-        final String bgColor = color == PieceColor.WHITE ? ANSICodes.ANSI_GREEN_BG : ANSICodes.ANSI_BROWN_BG;
-        final String textColor = color == PieceColor.WHITE ? ANSICodes.ANSI_WHITE : ANSICodes.ANSI_BLACK;
 
+        final String textColor = color == PieceColor.WHITE ? ANSICodes.ANSI_WHITE : ANSICodes.ANSI_BLACK;
+        final String bgColor = switch(color){
+            case WHITE -> ANSICodes.ANSI_GREEN_BG;
+            case BLACK -> ANSICodes.ANSI_BROWN_BG;
+            case NONE -> ANSICodes.ANSI_BLUE_BG;
+        };
         return bgColor + textColor + " " + icon + " " + ANSICodes.ANSI_RESET + " " + notation;
     }
 }

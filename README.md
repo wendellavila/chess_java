@@ -1,7 +1,7 @@
 # ChessJava
 Terminal based Chess game written in Java
 
-![Terminal interface](https://github.com/wendellavila/ChessJava/main/repo-assets/chessjava.jpg "Terminal interface")
+![Terminal interface](https://github.com/wendellavila/ChessJava/main/repo-assets/chessjava.png "Terminal interface")
 
 ## How to play
 * To move a piece, specify the origin and destination square<br>

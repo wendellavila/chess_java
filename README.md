@@ -25,7 +25,7 @@ Terminal based Chess game written in Java
 * Replaying match history after match end
 
 ## What wasn't implemented
-* Automatic checkmate detection (you need to actually capture the King for the checkmate to be registered)
+* Automatic checkmate detection (you need to capture the King for the checkmate to be registered, even when there's no way to avoid it)
 * Draw by stalemate
 * Player vs AI
 * Draw by repeated moves, 50-moves no capture, etc.

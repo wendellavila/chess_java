@@ -14,19 +14,20 @@ public class Knight extends Piece {
 
     public void calculateValidMoves(){
         //resetting status variables
-        isCheckingKing = false;
-        validMoves = new boolean[8][8];
+        resetMovesInfo();
+        Position destination;
 
         //navigating two row squares, one col square
         for(int i : new int[]{-2, 2}){
             for(int j : new int[]{-1, 1}){
-                if(new Position(position.getRow() + i, position.getCol() + j).isValid()){
-                    Piece piece = board.getPiece(position.getRow() + i, position.getCol() + j);
+                destination = new Position(position.getRow() + i, position.getCol() + j);
+                if(destination.isValid()){
+                    Piece piece = board.getPiece(destination);
                     if(piece == null){
-                        validMoves[position.getRow() + i][position.getCol() + j] = true;
+                        setValidMove(destination);
                     }
                     else if(piece.getColor() != color){
-                        validMoves[position.getRow() + i][position.getCol() + j] = true;
+                        setValidMove(destination);
                         if(piece instanceof King){
                             isCheckingKing = true;
                         }
@@ -37,13 +38,14 @@ public class Knight extends Piece {
         //navigating two col squares, one row square
         for(int i : new int[]{-1, 1}){
             for(int j : new int[]{-2, 2}){
-                if(((position.getRow() + i) < 8) && ((position.getRow() + i) >= 0) && ((position.getCol() + j) < 8) && ((position.getCol() + j) >= 0)){
-                    Piece piece = board.getPiece(position.getRow() + i, position.getCol() + j);
+                destination = new Position(position.getRow() + i, position.getCol() + j);
+                if(destination.isValid()){
+                    Piece piece = board.getPiece(destination);
                     if(piece == null){
-                        validMoves[position.getRow() + i][position.getCol() + j] = true;
+                        setValidMove(destination);
                     }
                     else if(piece.getColor() != color){
-                        validMoves[position.getRow() + i][position.getCol() + j] = true;
+                        setValidMove(destination);
                         if(piece instanceof King){
                             isCheckingKing = true;
                         }

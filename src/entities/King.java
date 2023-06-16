@@ -1,6 +1,9 @@
 package entities;
 
 import entities.enums.PieceColor;
+import entities.exceptions.GameOverException;
+
+import java.util.List;
 
 public class King extends Piece {
 
@@ -13,10 +16,10 @@ public class King extends Piece {
 
             Piece rookPosition = null;
             if(col == 1){
-                rookPosition = board.getPiece(position.getRow(), 0);
+                rookPosition = board.getPiece(new Position(position.getRow(), 0));
             }
             else if(col == 6){
-                rookPosition = board.getPiece(position.getRow(), 7);
+                rookPosition = board.getPiece(new Position(position.getRow(), 7));
             }
 
             if(rookPosition instanceof Rook &&
@@ -25,7 +28,7 @@ public class King extends Piece {
                 int min = col < position.getCol() ? col : position.getCol() + 1;
                 int max = col < position.getCol() ? position.getCol() : col + 1;
                 for(int j = min; j < max; j++){
-                    if(board.getPiece(position.getRow(), j) != null){
+                    if(board.getPiece(new Position(position.getRow(), j)) != null){
                         return false;
                     }
                 }
@@ -35,22 +38,36 @@ public class King extends Piece {
         return false;
     }
 
-    public void calculateValidMoves(){
+    public boolean moveCausesCheck(Position destination){
+        List<Piece> oppositePieces = board.getPieceListByColor(
+                color == PieceColor.WHITE ? PieceColor.BLACK : PieceColor.WHITE
+        );
+
+        for(Piece piece : oppositePieces){
+            if(piece.isMoveValid(destination)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void calculateValidMoves() throws GameOverException {
         //resetting status variables
-        isCheckingKing = false;
-        validMoves = new boolean[8][8];
+        resetMovesInfo();
+        Position destination;
 
         //regular move
         for(int i : new int[]{-1, 0, 1}){
             for(int j : new int[]{-1, 0, 1}) {
-                if(i+j != 0 && new Position(position.getRow() + i, position.getCol() + j).isValid()){
-                    Piece piece = board.getPiece(position.getRow() + i, position.getCol() + j);
+                destination = new Position(position.getRow() + i, position.getCol() + j);
+                if(i+j != 0 && destination.isValid()){
+                    Piece piece = board.getPiece(destination);
                     if(piece == null){
-                        validMoves[position.getRow() + i][position.getCol() + j] = true;
+                        setValidMove(destination);
                     }
                     else {
                         if(piece.getColor() != color){
-                            validMoves[position.getRow() + i][position.getCol() + j] = true;
+                            setValidMove(destination);
                             if(piece instanceof King){
                                 isCheckingKing = true;
                             }
@@ -64,9 +81,9 @@ public class King extends Piece {
         if(moveCount == 0){
             int[] destinationCols = {1,6};
             for(int destinationCol : destinationCols){
-
-                Piece rookPosition = destinationCol == 1 ? board.getPiece(position.getRow(), 0) :
-                        board.getPiece(position.getRow(), 7);
+                destination = new Position(position.getRow(), destinationCol);
+                Piece rookPosition = destinationCol == 1 ? board.getPiece(new Position(position.getRow(), 0)) :
+                        board.getPiece(new Position(position.getRow(), 7));
 
                 boolean isPieceBetween = false;
 
@@ -76,14 +93,23 @@ public class King extends Piece {
                     int min = destinationCol < position.getCol() ? destinationCol : position.getCol() + 1;
                     int max = destinationCol < position.getCol() ? position.getCol() : destinationCol + 1;
                     for(int j = min; j < max; j++){
-                        if(board.getPiece(position.getRow(), j) != null){
+                        if(board.getPiece(new Position(position.getRow(), j)) != null){
                             isPieceBetween = true;
                             break;
                         }
                     }
-                    validMoves[position.getRow()][destinationCol] = !isPieceBetween;
+                    if(!isPieceBetween){
+                        setValidMove(destination);
+                    }
                 }
             }
+        }
+
+        if(!hasValidMoves && board.getPieceCountByColor(getColor()) == 1){
+            board.addToLatestPlays(
+                    new NotationEntry("½-½", PieceColor.NONE, "½")
+            );
+            throw new GameOverException("Draw by stalemate!");
         }
     }
 }

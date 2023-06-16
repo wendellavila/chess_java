@@ -19,11 +19,19 @@ public class Match {
     // regex for highlighting piece's available moves
     private static final Pattern highlightPattern = Pattern.compile("tip\\s?-?([a-hA-H])(\\d)");
 
-    public static ArrayList<String> playMatch(Scanner sc){
+    public static ArrayList<String> playMatch(Scanner sc) {
 
         int turnCount = 1;
         Board board = new Board(sc);
         System.out.println(board);
+
+        try {
+            board.calculateAllPiecesMoves();
+        }
+        catch(GameOverException e){
+            System.out.println(board);
+            System.out.println(e.getMessage());
+        }
 
         Matcher inputMatcher, highlightMatcher;
 
@@ -85,15 +93,15 @@ public class Match {
                     origin.setCol((int) inputMatcher.group(1).toLowerCase().charAt(0) - (int)'a');
                     destination.setCol((int) inputMatcher.group(3).toLowerCase().charAt(0) - (int)'a');
 
-                    if(!board.positionExists(origin) || !board.positionExists(destination)){
+                    if(!origin.isValid() || !destination.isValid()){
                         throw new InvalidNotationException(input);
                     }
                     else {
                         if(inputMatcher.groupCount() > 4 && inputMatcher.group(5) != null && !inputMatcher.group(5).isEmpty()){
-                            board.movePieces(origin, destination, inputMatcher.group(5));
+                            board.performMove(origin, destination, inputMatcher.group(5));
                         }
                         else {
-                            board.movePieces(origin, destination, null);
+                            board.performMove(origin, destination, null);
                         }
                         turnCount = board.getMoveCount() % 2 == 0 ? turnCount + 1 : turnCount;
                         System.out.println(board);
@@ -115,8 +123,16 @@ public class Match {
         return board.getInputHistory();
     }
 
-    public static void replayMatch(ArrayList<String> inputHistory){
+    public static void replayMatch(ArrayList<String> inputHistory) {
         Board board = new Board(null);
+
+        try {
+            board.calculateAllPiecesMoves();
+        }
+        catch(GameOverException e){
+            System.out.println(board);
+            System.out.println(e.getMessage());
+        }
 
         if(!inputHistory.isEmpty()){
             System.out.println(board);
@@ -164,9 +180,9 @@ public class Match {
                     destination.setCol((int) inputMatcher.group(3).toLowerCase().charAt(0) - (int) 'a');
 
                     if(inputMatcher.groupCount() > 4 && inputMatcher.group(5) != null && !inputMatcher.group(5).isEmpty()){
-                        board.movePieces(origin, destination, inputMatcher.group(5));
+                        board.performMove(origin, destination, inputMatcher.group(5));
                     } else {
-                        board.movePieces(origin, destination, null);
+                        board.performMove(origin, destination, null);
                     }
                     System.out.println(board);
                     Thread.sleep(1500);

@@ -14,20 +14,21 @@ public class Rook extends Piece {
 
     public void calculateValidMoves(){
         //resetting status variables
-        isCheckingKing = false;
-        validMoves = new boolean[8][8];
+        resetMovesInfo();
+        Position destination;
 
         int[][] directions = {{1,0}, {-1,0}, {0,1}, {0,-1}};
         for(int[] direction : directions){
             for(int i = 1; i < 8; i++){
-                if(new Position(position.getRow() + (i * direction[0]), position.getCol() + (i * direction[1])).isValid()){
-                    Piece piece = board.getPiece(position.getRow() + (i * direction[0]), position.getCol() + (i * direction[1]));
+                destination = new Position(position.getRow() + (i * direction[0]), position.getCol() + (i * direction[1]));
+                if(destination.isValid()){
+                    Piece piece = board.getPiece(destination);
                     if(piece == null){
-                        validMoves[position.getRow() + (i * direction[0])][position.getCol() + (i * direction[1])] = true;
+                        setValidMove(destination);
                     }
                     else {
                         if(piece.getColor() != color){
-                            validMoves[position.getRow() + (i * direction[0])][position.getCol() + (i * direction[1])] = true;
+                            setValidMove(destination);
                             if(piece instanceof King){
                                 isCheckingKing = true;
                             }

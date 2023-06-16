@@ -61,15 +61,26 @@ public class Board {
         boardGrid[7][6] = new Knight(PieceColor.BLACK, new Position(7,6), this);
         boardGrid[7][7] = new Rook(PieceColor.BLACK, new Position(7,7), this);
 
-        for(int i : new int[]{0, 1, 6, 7}){
-            for(int j = 0; j < 8; j++){
-                if(boardGrid[i][j] != null){
-                    boardGrid[i][j].calculateValidMoves();
-                }
 
+        this.sc = sc;
+    }
+
+    public void calculateAllPiecesMoves() throws GameOverException {
+        for(Piece[] row : boardGrid){
+            for(Piece piece : row){
+                if(piece != null){
+                    piece.calculateValidMoves();
+                    if(piece.isCheckingKing){
+                        if(piece.color == PieceColor.WHITE){
+                            blackInCheck = true;
+                        }
+                        else {
+                            whiteInCheck = true;
+                        }
+                    }
+                }
             }
         }
-        this.sc = sc;
     }
 
     public void addToInputHistory(String input){
@@ -83,8 +94,8 @@ public class Board {
         }
     }
 
-    public Piece getPiece(int row, int col){
-        return boardGrid[row][col];
+    public Piece getPiece(Position position){
+        return boardGrid[position.getRow()][position.getCol()];
     }
 
     public int getMoveCount(){
@@ -128,7 +139,7 @@ public class Board {
         return blackInCheck;
     }
 
-    public List<Piece> getPiecesByColor(PieceColor color){
+    public List<Piece> getPieceListByColor(PieceColor color){
         List<Piece> pieceList = new ArrayList<>();
         for(Piece[] row : boardGrid){
             for(Piece piece : row){
@@ -141,29 +152,29 @@ public class Board {
     }
 
     public int getPieceCountByColor(PieceColor color){
-        return getPiecesByColor(color).size();
+        return getPieceListByColor(color).size();
     }
 
-    public void movePieces(Position origin, Position destination, String promoteTo) throws InvalidNotationException, InvalidMoveException, GameOverException {
+    public void performMove(Position origin, Position destination, String promoteTo) throws InvalidNotationException, InvalidMoveException, GameOverException {
 
         Piece movingPiece = boardGrid[origin.getRow()][origin.getCol()];
         PieceColor currentColor = getMoveCount() % 2 == 0 ? PieceColor.WHITE : PieceColor.BLACK;
 
-        if(movingPiece != null && movingPiece.isMoveValid(destination) && currentColor == movingPiece.getColor()){
-
-            Piece pieceDestination = boardGrid[destination.getRow()][destination.getCol()];
+        if(movingPiece != null && movingPiece.isMoveValid(destination)){
+        //currentColor == movingPiece.getColor()
+            Piece target = getPiece(destination);
 
             String notation;
             String captureNotation = "";
             String extraNotation = "";
 
             //regular capture
-            if(pieceDestination != null){
-                if(pieceDestination.getColor() == PieceColor.WHITE){
-                    capturedFromWhite += pieceDestination.toString();
+            if(target != null){
+                if(target.getColor() == PieceColor.WHITE){
+                    capturedFromWhite += target.toString();
                 }
                 else {
-                    capturedFromBlack += pieceDestination.toString();
+                    capturedFromBlack += target.toString();
                 }
                 captureNotation = "x";
             }
@@ -171,10 +182,10 @@ public class Board {
             else {
                 //move to empty: no extra action needed
                 //en passant
-                if(movingPiece instanceof Pawn && ((Pawn) movingPiece).isMoveEnPassant(destination.getRow(), destination.getCol())){
+                if(movingPiece instanceof Pawn && ((Pawn) movingPiece).isMoveEnPassant(destination)){
                     //removing enemy pawn after move
                     int direction = movingPiece.getColor() == PieceColor.WHITE ? -1 : 1;
-                    Piece enPassantTarget = boardGrid[destination.getRow() + direction][destination.getCol()];
+                    Piece enPassantTarget = getPiece(new Position(destination.getRow() + direction, destination.getCol()));
 
                     if(enPassantTarget.getColor() == PieceColor.WHITE){
                         capturedFromWhite += enPassantTarget.toString();
@@ -207,7 +218,7 @@ public class Board {
                     destination.getNotation();
 
             // pawn promotion
-            if(movingPiece instanceof Pawn && ((Pawn) movingPiece).isMovePromotion(destination.getRow(), destination.getCol())){
+            if(movingPiece instanceof Pawn && ((Pawn) movingPiece).isMovePromotion(destination)){
                 //trying to get from input capture
                 if(promoteTo != null){
                     movingPiece = getPromotionPiece(movingPiece, destination, promoteTo);
@@ -255,8 +266,8 @@ public class Board {
                 addToInputHistory(origin.getNotation() + " " + destination.getNotation() + " " + promoteTo);
             }
 
-            if(pieceDestination instanceof King){
-                extraNotation += pieceDestination.getColor() == PieceColor.WHITE ? "# (0-1)" : "# (1-0)";
+            if(target instanceof King){
+                extraNotation += target.getColor() == PieceColor.WHITE ? "# (0-1)" : "# (1-0)";
 
                 addToLatestPlays(new NotationEntry(notation + extraNotation, movingPiece.getColor(), movingPiece.toString()));
                 throw new GameOverException("Checkmate! - " + movingPiece.getColor() + " wins!");
@@ -264,21 +275,7 @@ public class Board {
 
             whiteInCheck = false;
             blackInCheck = false;
-            for(Piece[] row : boardGrid){
-                for(Piece piece : row){
-                    if(piece != null){
-                        piece.calculateValidMoves();
-                        if(piece.isCheckingKing){
-                            if(piece.color == PieceColor.WHITE){
-                                blackInCheck = true;
-                            }
-                            else {
-                                whiteInCheck = true;
-                            }
-                        }
-                    }
-                }
-            }
+            calculateAllPiecesMoves();
 
             if(movingPiece.isCheckingKing){
                 notation += "+";
@@ -301,7 +298,7 @@ public class Board {
         }
     }
 
-    public String highlightPiece(Position position){
+    public String highlightPiece(Position position) throws GameOverException {
         Piece piece = boardGrid[position.getRow()][position.getCol()];
         if(piece != null && piece.hasValidMoves()){
 

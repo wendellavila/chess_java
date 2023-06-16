@@ -1,6 +1,9 @@
 package entities;
 
 import entities.enums.PieceColor;
+import entities.exceptions.GameOverException;
+
+import java.util.List;
 
 public abstract class Piece {
 
@@ -9,10 +12,11 @@ public abstract class Piece {
     protected final PieceColor color;
     protected Position position;
     protected Board board;
-    protected boolean[][] validMoves;
+    protected boolean[][] validMoves = new boolean[8][8];
     protected int moveCount;
     protected int lastMoved;
-    protected boolean isCheckingKing;
+    protected boolean isCheckingKing = false;
+    protected boolean hasValidMoves = false;
 
     public Piece(PieceColor color, Position position, Board board, char icon, String notationSymbol){
         this.color = color;
@@ -22,7 +26,6 @@ public abstract class Piece {
         this.notationSymbol = notationSymbol;
         this.moveCount = 0;
         this.lastMoved = 0;
-        this.isCheckingKing = false;
     }
 
     public Piece(PieceColor color, Position position, Board board, char icon, String notationSymbol, int moveCount, int lastMoved){
@@ -33,7 +36,6 @@ public abstract class Piece {
         this.notationSymbol = notationSymbol;
         this.moveCount = moveCount;
         this.lastMoved = lastMoved;
-        this.isCheckingKing = false;
     }
 
     public void updatePosition(int row, int col, int boardMoveCount){
@@ -42,22 +44,25 @@ public abstract class Piece {
         lastMoved = boardMoveCount;
     }
 
-    public abstract void calculateValidMoves();
+    public void setValidMove(Position position){
+        validMoves[position.getRow()][position.getCol()] = true;
+        hasValidMoves = true;
+    }
+
+    public void resetMovesInfo(){
+        isCheckingKing = false;
+        hasValidMoves = false;
+        validMoves = new boolean[8][8];
+    }
+
+    public abstract void calculateValidMoves() throws GameOverException;
 
     public boolean isMoveValid(Position position){
         return validMoves[position.getRow()][position.getCol()];
     }
 
-    public boolean hasValidMoves(){
-        calculateValidMoves();
-        for(int i = 0; i < 8; i++){
-            for(int j = 0; j < 8; j++){
-                if(validMoves[i][j]){
-                    return true;
-                }
-            }
-        }
-        return false;
+    public boolean hasValidMoves() throws GameOverException {
+        return hasValidMoves;
     }
 
     public PieceColor getColor(){

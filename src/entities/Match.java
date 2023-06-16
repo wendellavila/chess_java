@@ -85,8 +85,7 @@ public class Match {
                     origin.setCol((int) inputMatcher.group(1).toLowerCase().charAt(0) - (int)'a');
                     destination.setCol((int) inputMatcher.group(3).toLowerCase().charAt(0) - (int)'a');
 
-                    if(origin.getRow() < 0 || origin.getRow() > 7 || destination.getRow() < 0 || destination.getRow() > 7 ||
-                            origin.getCol() < 0 || origin.getCol() > 7 || destination.getCol() < 0 || destination.getCol() > 7){
+                    if(!board.positionExists(origin) || !board.positionExists(destination)){
                         throw new InvalidNotationException(input);
                     }
                     else {

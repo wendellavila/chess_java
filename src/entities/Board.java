@@ -127,6 +127,10 @@ public class Board {
         return blackInCheck;
     }
 
+    public boolean positionExists(Position position){
+        return position.getRow() >= 0 && position.getRow() <= 7 && position.getCol() >= 0 && position.getCol() <= 7;
+    }
+
     public void movePieces(Position origin, Position destination, String promoteTo) throws InvalidNotationException, InvalidMoveException, GameOverException {
 
         Piece movingPiece = boardGrid[origin.getRow()][origin.getCol()];

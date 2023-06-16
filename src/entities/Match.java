@@ -163,7 +163,7 @@ public class Match {
                     origin.setCol((int) inputMatcher.group(1).toLowerCase().charAt(0) - (int) 'a');
                     destination.setCol((int) inputMatcher.group(3).toLowerCase().charAt(0) - (int) 'a');
 
-                    if (inputMatcher.groupCount() > 4 && inputMatcher.group(5) != null && !inputMatcher.group(5).isEmpty()) {
+                    if(inputMatcher.groupCount() > 4 && inputMatcher.group(5) != null && !inputMatcher.group(5).isEmpty()){
                         board.movePieces(origin, destination, inputMatcher.group(5));
                     } else {
                         board.movePieces(origin, destination, null);

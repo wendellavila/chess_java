@@ -20,7 +20,7 @@ public class Rook extends Piece {
         int[][] directions = {{1,0}, {-1,0}, {0,1}, {0,-1}};
         for(int[] direction : directions){
             for(int i = 1; i < 8; i++){
-                if((position.getRow() + (i * direction[0]) < 8) && (position.getRow() + (i * direction[0]) >= 0) && (position.getCol() + (i * direction[1]) < 8) && (position.getCol() + (i * direction[1]) >= 0)){
+                if(new Position(position.getRow() + (i * direction[0]), position.getCol() + (i * direction[1])).isValid()){
                     Piece piece = board.getPiece(position.getRow() + (i * direction[0]), position.getCol() + (i * direction[1]));
                     if(piece == null){
                         validMoves[position.getRow() + (i * direction[0])][position.getCol() + (i * direction[1])] = true;

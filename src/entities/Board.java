@@ -6,6 +6,7 @@ import entities.exceptions.InvalidMoveException;
 import entities.exceptions.InvalidNotationException;
 import entities.utils.ANSICodes;
 
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.InputMismatchException;
@@ -127,8 +128,20 @@ public class Board {
         return blackInCheck;
     }
 
-    public boolean positionExists(Position position){
-        return position.getRow() >= 0 && position.getRow() <= 7 && position.getCol() >= 0 && position.getCol() <= 7;
+    public List<Piece> getPiecesByColor(PieceColor color){
+        List<Piece> pieceList = new ArrayList<>();
+        for(Piece[] row : boardGrid){
+            for(Piece piece : row){
+                if(piece != null && piece.getColor() == color){
+                    pieceList.add(piece);
+                }
+            }
+        }
+        return pieceList;
+    }
+
+    public int getPieceCountByColor(PieceColor color){
+        return getPiecesByColor(color).size();
     }
 
     public void movePieces(Position origin, Position destination, String promoteTo) throws InvalidNotationException, InvalidMoveException, GameOverException {

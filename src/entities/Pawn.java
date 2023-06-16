@@ -52,11 +52,11 @@ public class Pawn extends Piece {
         //direction is different for white and black
         int i = color == PieceColor.WHITE ? 1 : -1;
         //one square movement
-        if((position.getRow() + i < 8) && (position.getRow() + i >= 0) && (board.getPiece(position.getRow() + i, position.getCol()) == null)){
+        if(new Position(position.getRow() + i, position.getCol()).isValid() && board.getPiece(position.getRow() + i, position.getCol()) == null){
             validMoves[position.getRow() + i][position.getCol()] = true;
         }
         //regular capture
-        if((position.getRow() + i < 8) && (position.getRow() + i >= 0)){
+        if(new Position(position.getRow() + i, position.getCol()).isValid()){
             for(int j : new int[]{1, -1}){
                 if((position.getCol() + j < 8) && (position.getCol() + j >= 0)){
                     Piece piece = board.getPiece(position.getRow() + i, position.getCol() + j);
@@ -72,7 +72,7 @@ public class Pawn extends Piece {
         //en passant
         if((getColor() == PieceColor.WHITE && position.getRow() == 4) || (getColor() == PieceColor.BLACK && position.getRow() == 3)){
             for(int j : new int[]{1, -1}){
-                if((position.getCol() + j < 8) && (position.getCol() + j >= 0)){
+                if(new Position(position.getRow(), position.getCol() + j).isValid()){
                     Piece piece = board.getPiece(position.getRow(), position.getCol() + j);
                     if(piece instanceof Pawn && piece.getColor() != color && piece.getMoveCount() == 1 &&
                             piece.getLastMove() == board.getMoveCount() &&

@@ -23,6 +23,10 @@ public class Position {
         return null;
     }
 
+    public boolean isValid(){
+        return this.row >= 0 && this.row <= 7 && this.col >= 0 && this.col <= 7;
+    }
+
     public String getNotation(){
         return notation;
     }

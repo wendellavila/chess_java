@@ -43,7 +43,7 @@ public class King extends Piece {
         //regular move
         for(int i : new int[]{-1, 0, 1}){
             for(int j : new int[]{-1, 0, 1}) {
-                if((i+j != 0) && (position.getRow() + i < 8) && (position.getRow() + i >=0) && (position.getCol() + j < 8) && (position.getCol() + j >=0)){
+                if(i+j != 0 && new Position(position.getRow() + i, position.getCol() + j).isValid()){
                     Piece piece = board.getPiece(position.getRow() + i, position.getCol() + j);
                     if(piece == null){
                         validMoves[position.getRow() + i][position.getCol() + j] = true;

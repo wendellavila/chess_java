@@ -20,7 +20,7 @@ public class Knight extends Piece {
         //navigating two row squares, one col square
         for(int i : new int[]{-2, 2}){
             for(int j : new int[]{-1, 1}){
-                if(((position.getRow() + i) < 8) && ((position.getRow() + i) >= 0) && ((position.getCol() + j) < 8) && ((position.getCol() + j) >= 0)){
+                if(new Position(position.getRow() + i, position.getCol() + j).isValid()){
                     Piece piece = board.getPiece(position.getRow() + i, position.getCol() + j);
                     if(piece == null){
                         validMoves[position.getRow() + i][position.getCol() + j] = true;
